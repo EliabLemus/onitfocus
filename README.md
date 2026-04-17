@@ -96,7 +96,7 @@ cd onitfocus
 | # | Iteration | Description | Status |
 |---|-----------|-------------|--------|
 | 1 | MVP | Menu bar + DND + timer + settings | ✅ v0.1.0 |
-| 2 | Slack Status | Auto-update Slack status on focus start/end | 🔜 Next |
+| 2 | Slack Status | Auto-update Slack status on focus start/end | ✅ v0.2.0 |
 | 3 | Calendar Read | Google Calendar integration, conflict detection | Planned |
 | 4 | Focus Planner | Fill free calendar slots with focus blocks | Planned |
 | 5 | Calendar Sync | n8n WebSocket for real-time event push | Planned |

@@ -1,27 +1,20 @@
-# v0.1.0 — MVP Menu Bar Focus Timer
+# v0.2.0 — Slack Status Integration
 
 ## What's New
 
-First release of **OnItFocus** — a minimal macOS menu bar app for focus sessions.
+Your team now knows when you're focused — automatically.
 
 ### Features
-- 🕐 Menu bar icon with live countdown in minutes
-- 🖱 Left-click: focus panel (start session, countdown, extend, end)
-- 🖱 Right-click: context menu (settings, quit)
-- 📝 Activity input with emoji picker (11 emojis)
-- ⏱ Predefined durations: 25, 45, 60, 90 min + custom
-- 🔕 Automatic Do Not Disturb via Focus Mode toggle
-- 🔔 Beep + system notification when session ends
-- ⚙️ Settings window (timer, tasks, connections, appearance)
-- 💾 Remembers last used activity and duration
+- 🔗 **Slack Status Sync** — Status updates automatically when you start/end a focus session
+- 📝 **Activity + Emoji** — Your focus activity and emoji appear in Slack (e.g., "📝 Writing report")
+- ⏱ **Auto-expiration** — Slack status clears when your focus session ends
+- 🔑 **Secure Token Storage** — Slack token stored in macOS Keychain (never in plain text)
+- ⚙️ **Settings → Connections** — Configure Slack token, toggle on/off, test connection
+- 🔄 **Independent Toggle** — Enable/disable Slack without affecting DND or timer
 
-### Requirements
-- macOS 14+ (Sonoma)
-- Xcode 16+
-
-### Permissions Needed
-- Accessibility (for DND toggle)
-- Notifications (for session end alerts)
-- Automation (Apple Events for System Events)
-
-See [README.md](README.md) for troubleshooting.
+### Setup
+1. Create a Slack App at api.slack.com
+2. Add `users.profile:write` scope (User OAuth)
+3. Install to workspace, copy `xoxp-` token
+4. Right-click OnItFocus → Settings → Connections → Slack → paste token
+5. Click "Test Connection" → ✅
