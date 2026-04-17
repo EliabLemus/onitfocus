@@ -1,0 +1,164 @@
+import SwiftUI
+
+@main
+struct OnItFocusApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    var body: some Scene {
+        Settings {
+            SettingsView()
+        }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    private var statusItem: NSStatusItem?
+    private var popover: NSPopover?
+    private var eventMonitor: Any?
+    private let timerService = FocusTimerService()
+    private let dndService = DNDService()
+    private var timerUpdate: Timer?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Setup status item
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+
+        if let button = statusItem?.button {
+            button.image = NSImage(systemSymbolName: "hourglass.circle.fill", accessibilityDescription: "OnItFocus")
+            button.action = #selector(togglePopover)
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        }
+
+        // Setup popover
+        let popover = NSPopover()
+        popover.contentSize = NSSize(width: 300, height: 350)
+        popover.behavior = .transient
+
+        let contentView = FocusMenuHost(
+            timerService: timerService,
+            dndService: dndService
+        )
+        popover.contentViewController = NSHostingController(rootView: contentView)
+        self.popover = popover
+
+        // Observe timer changes
+        timerService.objectWillChange.sink { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.updateStatusBar()
+            }
+        }.store(in: &cancellables)
+
+        // Timer to update menu bar text
+        timerUpdate = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updateStatusBar()
+        }
+
+        // Click-outside monitor to close popover
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            if let popover = self?.popover, popover.isShown {
+                popover.performClose(nil)
+            }
+        }
+    }
+
+    private var cancellables = Set<AnyCancellable>()
+
+    @objc func togglePopover() {
+        guard let button = statusItem?.button, let popover = popover else { return }
+
+        if let event = NSApp.currentEvent, event.type == .rightMouseUp {
+            // Right click → context menu
+            showContextMenu(button: button)
+            return
+        }
+
+        if popover.isShown {
+            popover.performClose(button)
+        } else {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            popover.contentViewController?.view.window?.makeKey()
+        }
+    }
+
+    private func showContextMenu(button: NSButton) {
+        let menu = NSMenu()
+
+        if timerService.isActive {
+            let extendItem = NSMenuItem(title: "Extend +5 min", action: #selector(extendSession), keyEquivalent: "")
+            extendItem.image = NSImage(systemSymbolName: "forward.fill", accessibilityDescription: "Extend")
+            menu.addItem(extendItem)
+
+            let endItem = NSMenuItem(title: "End Session", action: #selector(endSession), keyEquivalent: "")
+            endItem.image = NSImage(systemSymbolName: "stop.fill", accessibilityDescription: "End")
+            menu.addItem(endItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: "Settings")
+        menu.addItem(settingsItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        let quitItem = NSMenuItem(title: "Quit OnItFocus", action: #selector(quitApp), keyEquivalent: "q")
+        menu.addItem(quitItem)
+
+        menu.delegate = self
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
+    }
+
+    @objc func extendSession() {
+        timerService.extendFiveMinutes()
+    }
+
+    @objc func endSession() {
+        timerService.cancelSession()
+        dndService.deactivateDND()
+    }
+
+    @objc func openSettings() {
+        if popover?.isShown == true {
+            popover?.performClose(nil)
+        }
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc func quitApp() {
+        NSApp.terminate(nil)
+    }
+
+    private func updateStatusBar() {
+        guard let button = statusItem?.button else { return }
+
+        if timerService.isActive {
+            button.image = NSImage(systemSymbolName: "play.circle.fill", accessibilityDescription: "Focus Active")
+            let newText = " \(timerService.currentEmoji) \(timerService.remainingMinutesString) — \(timerService.currentActivity)"
+            if button.title != newText {
+                button.title = newText
+            }
+        } else {
+            button.image = NSImage(systemSymbolName: "hourglass.circle.fill", accessibilityDescription: "OnItFocus")
+            button.title = ""
+        }
+
+        // Force status bar to recalculate width
+        statusItem?.length = NSStatusItem.variableLength
+    }
+}
+
+extension AppDelegate: NSMenuDelegate {}
+
+// Host view that bridges SwiftUI with our service objects
+struct FocusMenuHost: View {
+    @ObservedObject var timerService: FocusTimerService
+    @ObservedObject var dndService: DNDService
+
+    var body: some View {
+        FocusMenuView()
+            .environmentObject(timerService)
+            .environmentObject(dndService)
+    }
+}
+
+import Combine
