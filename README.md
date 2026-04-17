@@ -1,62 +1,69 @@
 # OnItFocus
 
-> Focus timer for macOS with automatic Do Not Disturb, Slack status, and Google Calendar sync.
+> Minimal macOS menu bar app for focus sessions. Start a timer, get in the zone, let OnItFocus handle the rest.
 
-## Features (Iteración 1 — MVP)
+![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5.9-orange) ![License](https://img.shields.io/badge/License-MIT-green)
 
-- ⏱ Menu bar timer with countdown
-- 🔕 Automatic Do Not Disturb when focus session starts
-- 🔔 Beep + system notification when session ends
-- 📝 Activity input with emoji picker
-- ⏱ Predefined durations (25, 45, 60, 90 min) + custom
-- 🔄 Extend session (+5 min)
-- 💾 Remembers last used activity and duration
+## Features
 
-## Building
+- 🕐 **Menu bar timer** — Live countdown in minutes while you focus
+- 🖱 **Left-click** — Focus panel (start, countdown, extend +5 min, end)
+- 🖱 **Right-click** — Context menu (settings, quit)
+- 📝 **Activity input** — Text + emoji picker for what you're working on
+- ⏱ **Flexible durations** — 25, 45, 60, 90 min presets + custom
+- 🔕 **Auto DND** — Activates Do Not Disturb when you start focusing
+- 🔔 **Alert on completion** — Beep + system notification when time's up
+- ⚙️ **Settings** — Customizable durations, predefined tasks, sounds, appearance
+- 💾 **Persistence** — Remembers your last activity and duration
+- 🎨 **System theme** — Adapts to your macOS Light/Dark mode
 
-Requires Xcode 16+ and macOS 14+ (Sonoma).
+## Installation
+
+### Build from source
+
+Requires Xcode 16+ and macOS 14+.
 
 ```bash
-# Using Xcode
+git clone https://github.com/EliabLemus/onitfocus.git
+cd onitfocus
 xed .
-# Then Cmd+R to build and run
+# Cmd+R to build and run
+```
 
-# Using xcodebuild
+Or via command line:
+
+```bash
+xcodegen generate
 xcodebuild build -scheme OnItFocus -configuration Debug -destination 'platform=macOS'
 ```
 
 ## Permissions
 
-OnItFocus requires the following permissions to work correctly. You'll be prompted on first use, or you can set them manually in **System Settings → Privacy & Security**:
+OnItFocus needs the following permissions. You'll be prompted on first use.
 
-| Permission | Why needed | How to enable |
+| Permission | Why | How to enable |
 |---|---|---|
-| **Accessibility** | Control Do Not Distumb via keyboard shortcut | System Settings → Privacy & Security → Accessibility → Add OnItFocus |
+| **Accessibility** | Toggle Do Not Disturb via keyboard shortcut | System Settings → Privacy & Security → Accessibility → Add OnItFocus |
 | **Notifications** | Show "Focus session ended" alerts | System Settings → Notifications → OnItFocus → Allow |
-| **Automation (Apple Events)** | Run AppleScript to toggle Focus Mode | System Settings → Privacy & Security → Automation → OnItFocus → System Events → ✅ |
+| **Automation** | Run AppleScript to control Focus Mode | System Settings → Privacy & Security → Automation → OnItFocus → System Events → ✅ |
 
-### Troubleshooting
+## Troubleshooting
 
-**"Hourglass icon appears but nothing happens when I click it"**
-- This shouldn't happen. If it does, try killing the app from Activity Monitor and relaunching.
+**DND doesn't activate**
+- Ensure OnItFocus has Accessibility permissions (see above).
+- Verify Focus Mode shortcut is enabled: System Settings → Keyboard → Keyboard Shortcuts → Focus.
 
-**"DND doesn't activate when I start a focus session"**
-- OnItFocus uses a keyboard shortcut (⌃⌥⌘F) to toggle Focus Mode.
-- Make sure OnItFocus has **Accessibility** permissions (see table above).
-- Also verify that Focus Mode shortcut is enabled in System Settings → Keyboard → Keyboard Shortcuts → Focus.
+**No notification when session ends**
+- System Settings → Notifications → OnItFocus → Allow Notifications.
 
-**"No notification when session ends"**
-- Go to System Settings → Notifications → OnItFocus → Allow Notifications.
-
-**"App asks for Automation permission repeatedly"**
-- Go to System Settings → Privacy & Security → Automation.
-- Find OnItFocus and check "System Events" → set to ✅.
+**Repeated Automation permission prompts**
+- System Settings → Privacy & Security → Automation → OnItFocus → System Events → set to ✅.
 
 ## Roadmap
 
 | # | Iteration | Status |
 |---|-----------|--------|
-| 1 | MVP Menu Bar + DND + Timer | ✅ Done |
+| 1 | MVP Menu Bar + DND + Timer | ✅ v0.1.0 |
 | 2 | Slack Status | 🔜 Next |
 | 3 | Google Calendar Read | Planned |
 | 4 | Focus Planner (Calendar Write) | Planned |
