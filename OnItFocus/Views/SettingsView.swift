@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var slackService: SlackService
+    @State private var slackToken: String = ""
     @AppStorage("customDurations") private var customDurationsData = "[25, 45, 60, 90]"
     @AppStorage("lastActivity") private var lastActivity = ""
     @AppStorage("lastEmoji") private var lastEmoji = "📝"
@@ -156,12 +158,12 @@ struct SettingsView: View {
     // MARK: - Connections
 
     private var connectionsTab: some View {
-        VStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Connections")
                 .font(.headline)
 
-            // Slack (Iteración 2)
-            VStack(alignment: .leading, spacing: 8) {
+            // Slack
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Image(systemName: "message.fill")
                         .foregroundStyle(.secondary)
@@ -169,14 +171,46 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                     Spacer()
-                    Text("Coming soon")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Toggle("", isOn: $slackService.isEnabled)
                 }
-                .padding(12)
-                .background(Color.gray.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                if slackService.isEnabled {
+                    VStack(alignment: .leading, spacing: 8) {
+                        SecureField("Slack User Token (xoxp-...)", text: $slackToken)
+                            .textFieldStyle(.roundedBorder)
+                            .onChange(of: slackToken) { _, newValue in
+                                slackService.token = newValue.isEmpty ? nil : newValue
+                            }
+
+                        HStack {
+                            Button("Test Connection") {
+                                slackService.testConnection()
+                            }
+                            .disabled(slackService.token == nil || slackService.token?.isEmpty == true)
+
+                            if slackService.isConnected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            }
+
+                            Spacer()
+
+                            if let error = slackService.connectionError {
+                                Text(error)
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+
+                        Text("Create a Slack app at api.slack.com → OAuth & Permissions → users.profile:write")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
+            .padding(12)
+            .background(Color.gray.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             // Google Calendar (Iteración 3)
             VStack(alignment: .leading, spacing: 8) {

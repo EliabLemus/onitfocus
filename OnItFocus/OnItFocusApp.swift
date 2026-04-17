@@ -7,6 +7,7 @@ struct OnItFocusApp: App {
     var body: some Scene {
         Settings {
             SettingsView()
+                .environmentObject(appDelegate.slackService)
         }
     }
 }
@@ -15,8 +16,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
     private var eventMonitor: Any?
-    private let timerService = FocusTimerService()
-    private let dndService = DNDService()
+    let timerService = FocusTimerService()
+    let dndService = DNDService()
+    let slackService = SlackService()
     private var timerUpdate: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -48,6 +50,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }.store(in: &cancellables)
 
+        // Observe session start/end for Slack
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onSessionStarted),
+            name: .focusSessionStarted,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onSessionEnded),
+            name: .focusSessionEnded,
+            object: nil
+        )
+
         // Timer to update menu bar text
         timerUpdate = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateStatusBar()
@@ -63,11 +79,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var cancellables = Set<AnyCancellable>()
 
+    @objc private func onSessionStarted() {
+        let expiration = Int(Date().timeIntervalSince1970) + (timerService.durationMinutes * 60)
+        slackService.setStatus(
+            emoji: timerService.currentEmoji,
+            text: timerService.currentActivity,
+            expirationTimestamp: expiration
+        )
+    }
+
+    @objc private func onSessionEnded() {
+        slackService.clearStatus()
+    }
+
     @objc func togglePopover() {
         guard let button = statusItem?.button, let popover = popover else { return }
 
         if let event = NSApp.currentEvent, event.type == .rightMouseUp {
-            // Right click → context menu
             showContextMenu(button: button)
             return
         }
@@ -142,14 +170,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.title = ""
         }
 
-        // Force status bar to recalculate width
         statusItem?.length = NSStatusItem.variableLength
     }
 }
 
 extension AppDelegate: NSMenuDelegate {}
 
-// Host view that bridges SwiftUI with our service objects
 struct FocusMenuHost: View {
     @ObservedObject var timerService: FocusTimerService
     @ObservedObject var dndService: DNDService
@@ -159,6 +185,12 @@ struct FocusMenuHost: View {
             .environmentObject(timerService)
             .environmentObject(dndService)
     }
+}
+
+// Notification names for Slack integration
+extension Notification.Name {
+    static let focusSessionStarted = Notification.Name("focusSessionStarted")
+    static let focusSessionEnded = Notification.Name("focusSessionEnded")
 }
 
 import Combine

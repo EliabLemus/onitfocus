@@ -49,6 +49,7 @@ class FocusTimerService: ObservableObject {
 
         saveLastUsed(activity: activity, emoji: emoji, duration: durationMinutes)
         startTimer()
+        NotificationCenter.default.post(name: .focusSessionStarted, object: nil)
     }
 
     func endSession() {
@@ -56,6 +57,7 @@ class FocusTimerService: ObservableObject {
         session = nil
         isActive = false
         remainingSeconds = 0
+        NotificationCenter.default.post(name: .focusSessionEnded, object: nil)
     }
 
     func extendFiveMinutes() {
