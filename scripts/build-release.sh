@@ -45,6 +45,10 @@ fi
 
 echo "✅ Built: $APP_PATH"
 
+# Ad-hoc code sign (prevents "damaged" error)
+echo "🔐 Ad-hoc signing..."
+codesign --force --deep --sign - "$APP_PATH"
+
 # Create DMG
 echo "💿 Creating DMG..."
 DMG_NAME="${APP_NAME}-${VERSION}"
