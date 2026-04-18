@@ -13,7 +13,29 @@ A minimal macOS menu bar app that handles Do Not Disturb, Slack status, and time
 
 </div>
 
----
+## Why Focally?
+
+We looked at every focus app out there. None did what we needed:
+
+- **Timing apps** (Pomodone, Session) — no DND, no Slack sync
+- **Menu bar timers** (Thyme, Hour) — no status integration
+- **Productivity suites** (RescueTime, Forest) — heavy, expensive, opinionated
+
+Focally is one thing: **start a timer, get in the zone, let the app handle the rest.** No subscriptions, no bloat, no cloud dependency.
+
+## Features
+
+| Feature | Status |
+|---------|--------|
+| Focus timer (25/45/60/custom min) | ✅ |
+| Automatic Do Not Disturb | ✅ |
+| Slack status sync | ✅ |
+| Alert sound with repeat | ✅ |
+| Predefined tasks | ✅ |
+| Keychain-stored secrets | ✅ |
+| Google Calendar read | 🔜 Next |
+| Focus Planner (calendar write) | 📋 Planned |
+| n8n WebSocket sync | 📋 Planned |
 
 ## Install
 
@@ -37,38 +59,12 @@ brew install --cask focally
 - **Left-click** ⏳ → focus panel (start, countdown, extend, end)
 - **Right-click** ⏳ → context menu (settings, quit)
 
-### Features
-
-- ⏱️ Focus timer with customizable durations (25/45/60/custom min)
-- 🔇 Automatic Do Not Disturb on session start/end
-- 💬 Slack status sync — shows your current task with emoji
-- 🔔 Alert sound with configurable repeat
-- 📋 Predefined tasks for quick start
-- 🔑 Secrets stored in macOS Keychain
-
-### Settings
-
-| Tab | What it does |
-|-----|-------------|
-| **Timer** | Durations, alert sound, repeat count |
-| **Tasks** | Predefined activities with emojis |
-| **Connections** | Slack workspace toggle |
-| **Secrets** | Tokens and credentials (Keychain) |
-
 ## Permissions
 
 | Permission | Why | How |
 |---|---|---|
 | Accessibility | Toggle Do Not Disturb | System Settings → Privacy → Accessibility → Add Focally |
 | Notifications | Session alerts | System Settings → Notifications → Focally → Allow |
-
-## Roadmap
-
-- ✅ v0.1 — MVP: menu bar, timer, DND, settings
-- ✅ v0.2 — Slack status integration
-- 🔜 v0.3 — Google Calendar read
-- 📋 v0.4 — Focus Planner (calendar write)
-- 📋 v0.5 — n8n WebSocket sync
 
 ## Build from source
 
