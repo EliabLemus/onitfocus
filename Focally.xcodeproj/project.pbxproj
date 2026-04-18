@@ -16,6 +16,7 @@
 		852FEB641C068C8AFD126EE5 /* FocusMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E01047F1BAA28E91430337 /* FocusMenuView.swift */; };
 		8F78AC672E80865A93223480 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4974D6DCBBEF4EDAD90D1BC8 /* KeychainHelper.swift */; };
 		AC2AF556BA64BF482606A1B0 /* ActivityInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9721E28A6A0CBFB8506A5F6F /* ActivityInputView.swift */; };
+		ADF6E6ACAE531242A66946CB /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7294FD9B10CC42662103B9B /* AppIcon.icns */; };
 		EA47EA69F07B97F12E89C9EA /* FocusTimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1032F662E9204A6D804DD2EF /* FocusTimerService.swift */; };
 		EA48D35F158E4DC1C71ED845 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B872379B2018EE66D478415E /* Assets.xcassets */; };
 		F38696014F84656D6286B4B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8132A336C230D8B7FD4EC1DE /* SettingsView.swift */; };
@@ -34,6 +35,7 @@
 		9721E28A6A0CBFB8506A5F6F /* ActivityInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityInputView.swift; sourceTree = "<group>"; };
 		A6B424719CB23B5544233E17 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0E13FFAD610634D3C20A063 /* FocusSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSession.swift; sourceTree = "<group>"; };
+		B7294FD9B10CC42662103B9B /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		B872379B2018EE66D478415E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C4E01047F1BAA28E91430337 /* FocusMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusMenuView.swift; sourceTree = "<group>"; };
 		F2E3F6355136EFD90EE198C8 /* DNDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNDService.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 		5AF2FE4BCEA66A832CB8637D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B7294FD9B10CC42662103B9B /* AppIcon.icns */,
 				8106D91600D3C2013F5ACD33 /* bell.aiff */,
 			);
 			path = Resources;
@@ -168,6 +171,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADF6E6ACAE531242A66946CB /* AppIcon.icns in Resources */,
 				EA48D35F158E4DC1C71ED845 /* Assets.xcassets in Resources */,
 				0972ACA31DECEB6215662878 /* Resources in Resources */,
 				679740AFC847642945563E39 /* bell.aiff in Resources */,

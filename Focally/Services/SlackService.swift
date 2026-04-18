@@ -38,7 +38,7 @@ class SlackService: ObservableObject {
 
     func setStatus(text: String, expirationTimestamp: Int, taskEmoji: String? = nil, fallbackEmoji: String? = nil) {
         guard isEnabled, let token = token else { return }
-        let statusEmoji = normalizedStatusEmoji(taskEmoji, fallbackEmoji: fallbackEmoji)
+        let statusEmoji = normalizedStatusEmoji(in: text, taskEmoji: taskEmoji, fallbackEmoji: fallbackEmoji)
 
         let profile: [String: String] = [
             "status_text": text,
@@ -154,7 +154,11 @@ class SlackService: ObservableObject {
         }
     }
 
-    private func normalizedStatusEmoji(_ taskEmoji: String?, fallbackEmoji: String?) -> String {
+    private func normalizedStatusEmoji(in text: String, taskEmoji: String?, fallbackEmoji: String?) -> String {
+        if let inlineEmoji = firstEmoji(in: text) {
+            return inlineEmoji
+        }
+
         let taskValue = taskEmoji?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !taskValue.isEmpty {
             return taskValue
@@ -166,5 +170,41 @@ class SlackService: ObservableObject {
         }
 
         return savedStatusEmoji()
+    }
+
+    private func firstEmoji(in text: String) -> String? {
+        if let shortcode = firstSlackEmojiCode(in: text) {
+            return shortcode
+        }
+
+        for character in text {
+            if isEmoji(character) {
+                return String(character)
+            }
+        }
+
+        return nil
+    }
+
+    private func firstSlackEmojiCode(in text: String) -> String? {
+        let pattern = #":[a-z0-9_+\-]+:"#
+
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return nil
+        }
+
+        let range = NSRange(text.startIndex..., in: text)
+        guard let match = regex.firstMatch(in: text, options: [], range: range),
+              let matchRange = Range(match.range, in: text) else {
+            return nil
+        }
+
+        return String(text[matchRange])
+    }
+
+    private func isEmoji(_ character: Character) -> Bool {
+        character.unicodeScalars.contains { scalar in
+            scalar.properties.isEmojiPresentation || scalar.properties.isEmoji
+        }
     }
 }

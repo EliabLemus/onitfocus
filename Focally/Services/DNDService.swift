@@ -3,12 +3,29 @@ import ApplicationServices
 import Foundation
 
 class DNDService: ObservableObject {
+    private enum AccessibilityPermissionState: String {
+        case unknown
+        case trusted
+        case denied
+    }
+
+    private static let accessibilityStateDefaultsKey = "dndAccessibilityPermissionState"
+
     @Published var isDNDActive = false
     private var hasShownSetupAlert = false
+    private var hasShownAccessibilityAlertThisLaunch = false
+    private var hasCheckedAccessibilityThisLaunch = false
+    private var shouldSkipAccessibilityChecksUntilRelaunch = false
+    private var accessibilityPermissionState: AccessibilityPermissionState
+
+    init() {
+        let savedState = UserDefaults.standard.string(forKey: Self.accessibilityStateDefaultsKey)
+        self.accessibilityPermissionState = AccessibilityPermissionState(rawValue: savedState ?? "") ?? .unknown
+    }
 
     func activateDND() {
         guard !isDNDActive else { return }
-        guard ensureAccessibilityPermission(prompt: true) else {
+        guard ensureAccessibilityPermission() else {
             presentAccessibilityAlert()
             return
         }
@@ -23,7 +40,7 @@ class DNDService: ObservableObject {
 
     func deactivateDND() {
         guard isDNDActive else { return }
-        guard ensureAccessibilityPermission(prompt: false) else { return }
+        guard ensureAccessibilityPermission() else { return }
 
         if toggleDNDShortcut() {
             isDNDActive = false
@@ -58,18 +75,32 @@ class DNDService: ObservableObject {
         return false
     }
 
-    private func ensureAccessibilityPermission(prompt: Bool) -> Bool {
-        if AXIsProcessTrusted() {
+    private func ensureAccessibilityPermission() -> Bool {
+        if shouldSkipAccessibilityChecksUntilRelaunch {
+            return false
+        }
+
+        if !hasCheckedAccessibilityThisLaunch {
+            hasCheckedAccessibilityThisLaunch = true
+            if refreshAccessibilityPermissionState() {
+                return true
+            }
+        } else if accessibilityPermissionState == .trusted {
             return true
         }
 
-        if prompt {
-            let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true]
-            _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        }
-
+        shouldSkipAccessibilityChecksUntilRelaunch = true
         print("[Focally] Accessibility permission required: System Settings > Privacy & Security > Accessibility > Add Focally")
         return false
+    }
+
+    private func refreshAccessibilityPermissionState() -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
+        let isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
+        let newState: AccessibilityPermissionState = isTrusted ? .trusted : .denied
+        accessibilityPermissionState = newState
+        UserDefaults.standard.set(newState.rawValue, forKey: Self.accessibilityStateDefaultsKey)
+        return isTrusted
     }
 
     @discardableResult
@@ -94,13 +125,14 @@ class DNDService: ObservableObject {
     }
 
     private func presentAccessibilityAlert() {
-        guard !hasShownSetupAlert else { return }
+        guard !hasShownSetupAlert, !hasShownAccessibilityAlertThisLaunch else { return }
         hasShownSetupAlert = true
+        hasShownAccessibilityAlertThisLaunch = true
 
         DispatchQueue.main.async { [weak self] in
             let alert = NSAlert()
             alert.messageText = "Accessibility permission is required"
-            alert.informativeText = "Focally needs Accessibility access to trigger your Focus shortcut. Enable it in System Settings > Privacy & Security > Accessibility."
+            alert.informativeText = "Focally needs Accessibility access to trigger your Focus shortcut. Enable it in System Settings > Privacy & Security > Accessibility, then relaunch the app before trying Do Not Disturb again."
             alert.addButton(withTitle: "Open Accessibility Settings")
             alert.addButton(withTitle: "OK")
 

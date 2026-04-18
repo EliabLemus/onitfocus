@@ -135,7 +135,7 @@ class FocusTimerService: ObservableObject {
         let count = repeatCount > 0 ? repeatCount : 5  // default 5 if never saved
 
         for i in 0..<count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 3.5) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.8) { [weak self] in
                 guard let self = self else { return }
                 guard let sound = self.makeSound(named: soundName) else { return }
                 self.activeSounds.append(sound)
