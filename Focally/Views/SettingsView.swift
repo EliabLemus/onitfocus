@@ -512,30 +512,48 @@ struct SettingsView: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
 
-                HStack(spacing: 12) {
-                    Picker("Work", selection: $draftWorkDurationMinutes) {
-                        ForEach(1...60, id: \.self) { min in
-                            Text("\(min) min").tag(min)
+                VStack(spacing: 8) {
+                    HStack {
+                        Text("Work")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 90, alignment: .leading)
+                        Picker("Work", selection: $draftWorkDurationMinutes) {
+                            ForEach(1...60, id: \.self) { min in
+                                Text("\(min) min").tag(min)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        Spacer()
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 120)
 
-                    Picker("Short Break", selection: $draftShortBreakDurationMinutes) {
-                        ForEach(1...30, id: \.self) { min in
-                            Text("\(min) min").tag(min)
+                    HStack {
+                        Text("Short Break")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 90, alignment: .leading)
+                        Picker("Short Break", selection: $draftShortBreakDurationMinutes) {
+                            ForEach(1...30, id: \.self) { min in
+                                Text("\(min) min").tag(min)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        Spacer()
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 120)
 
-                    Picker("Long Break", selection: $draftLongBreakDurationMinutes) {
-                        ForEach(1...60, id: \.self) { min in
-                            Text("\(min) min").tag(min)
+                    HStack {
+                        Text("Long Break")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 90, alignment: .leading)
+                        Picker("Long Break", selection: $draftLongBreakDurationMinutes) {
+                            ForEach(1...60, id: \.self) { min in
+                                Text("\(min) min").tag(min)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        Spacer()
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 120)
                 }
             }
             .padding(12)

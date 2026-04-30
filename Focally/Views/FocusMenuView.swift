@@ -55,23 +55,29 @@ struct FocusMenuView: View {
                     .foregroundColor(.secondary)
             }
 
-            HStack(spacing: 12) {
-                Button(action: {
-                    showActivityInput = true
-                }) {
-                    Label("Start Focus", systemImage: "play.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-
-                Button(action: {
-                    timerService.resetToIdle()
-                }) {
-                    Label("Reset", systemImage: "arrow.counterclockwise")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
+            // Quick Start Pomodoro
+            Button(action: {
+                timerService.startWorkSession(
+                    activity: "Focus Session",
+                    emoji: "🍅",
+                    durationMinutes: timerService.workDurationMinutes
+                )
+                dndService.activateDND()
+            }) {
+                Label("🍅 Quick Start", systemImage: "play.fill")
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+
+            // Custom Focus Session
+            Button(action: {
+                showActivityInput = true
+            }) {
+                Label("Start Focus", systemImage: "pencil")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
         }
     }
 
@@ -149,6 +155,16 @@ struct FocusMenuView: View {
                     }
                     .buttonStyle(.bordered)
                 }
+
+                Button(action: {
+                    timerService.resetToIdle()
+                    dndService.deactivateDND()
+                }) {
+                    Label("Stop", systemImage: "stop.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.red)
             }
         }
     }
