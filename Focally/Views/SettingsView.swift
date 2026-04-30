@@ -5,6 +5,8 @@ struct SettingsView: View {
     @EnvironmentObject var slackService: SlackService
     @EnvironmentObject var calendarService: GoogleCalendarService
 
+    var onSave: (() -> Void)? = nil
+
     @AppStorage("customDurations") private var customDurationsData = "[25, 45, 60, 90]"
     @AppStorage("useSystemTheme") private var useSystemTheme = true
     @AppStorage("soundEnabled") private var soundEnabled = true
@@ -790,6 +792,8 @@ struct SettingsView: View {
                 saveButtonTitle = "Save Changes"
             }
         }
+
+        onSave?()
     }
 
     private func commitSlackTokenDraft() {
@@ -883,7 +887,7 @@ struct SettingsView: View {
     }
 
     private func loadTasks() -> [PredefinedTask] {
-        guard let data = UserDefaults.standard.data(forKey: "predefinedTasks"),
+        guard let data = UserDefaults.standard.data(forKey: PredefinedTask.defaultsKey),
               let tasks = try? JSONDecoder().decode([PredefinedTask].self, from: data) else {
             return []
         }
@@ -892,7 +896,7 @@ struct SettingsView: View {
 
     private func saveTasks(_ tasks: [PredefinedTask]) {
         guard let data = try? JSONEncoder().encode(tasks) else { return }
-        UserDefaults.standard.set(data, forKey: "predefinedTasks")
+        UserDefaults.standard.set(data, forKey: PredefinedTask.defaultsKey)
     }
 
     private func removeTask(_ task: PredefinedTask) {
@@ -930,10 +934,4 @@ private struct EmojiSuggestion: Identifiable {
     let value: String
 
     var id: String { value }
-}
-
-private struct PredefinedTask: Identifiable, Codable, Equatable {
-    var id = UUID()
-    let name: String
-    let emoji: String
 }

@@ -146,6 +146,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        let aboutItem = NSMenuItem(title: aboutMenuTitle, action: nil, keyEquivalent: "")
+        aboutItem.image = NSImage(systemSymbolName: "info.circle", accessibilityDescription: "About Focally")
+        aboutItem.isEnabled = false
+        menu.addItem(aboutItem)
+
         menu.addItem(NSMenuItem.separator())
 
         let quitItem = NSMenuItem(title: "Quit Focally", action: #selector(quitApp), keyEquivalent: "q")
@@ -208,7 +213,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func makeSettingsWindow() -> NSWindow {
-        let settingsView = SettingsView()
+        let settingsView = SettingsView(onSave: { [weak self] in
+            self?.settingsWindow?.close()
+        })
             .environmentObject(slackService)
             .environmentObject(calendarService)
         let hostingController = NSHostingController(rootView: settingsView)
@@ -221,6 +228,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         settingsWindow = window
         return window
+    }
+
+    private var aboutMenuTitle: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        return "About Focally (v\(version), build \(build))"
     }
 
     private func presentCalendarConflictIfNeeded() {

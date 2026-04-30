@@ -5,6 +5,8 @@ struct ActivityInputView: View {
     @State private var selectedEmoji: String = "📝"
     @State private var selectedDuration: Int = 25
     @State private var customMinutes: String = ""
+    @State private var predefinedTasks: [PredefinedTask] = []
+    @State private var selectedTaskIndex: Int? = nil
 
     let onStart: (String, String, Int) -> Void
     let onCancel: () -> Void
@@ -16,6 +18,10 @@ struct ActivityInputView: View {
         VStack(spacing: 14) {
             Text("Start Focus Session")
                 .font(.headline)
+
+            if predefinedTasks.count >= 2 {
+                predefinedTaskPicker
+            }
 
             // Activity name
             VStack(alignment: .leading, spacing: 4) {
@@ -114,6 +120,65 @@ struct ActivityInputView: View {
             if savedDuration > 0 {
                 selectedDuration = savedDuration
             }
+            loadPredefinedTasks()
         }
+    }
+
+    private var predefinedTaskPicker: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Quick task")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Array(predefinedTasks.enumerated()), id: \.element.id) { index, task in
+                        Button {
+                            applyPredefinedTask(at: index)
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text(task.emoji)
+                                Text(task.name)
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(selectedTaskIndex == index ? Color.accentColor : Color.gray.opacity(0.15))
+                            .foregroundStyle(selectedTaskIndex == index ? .white : .primary)
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    private func loadPredefinedTasks() {
+        let defaults = UserDefaults.standard
+
+        guard let data = defaults.data(forKey: PredefinedTask.defaultsKey),
+              let tasks = try? JSONDecoder().decode([PredefinedTask].self, from: data) else {
+            predefinedTasks = []
+            selectedTaskIndex = nil
+            return
+        }
+
+        predefinedTasks = tasks
+
+        guard tasks.count >= 2 else {
+            selectedTaskIndex = nil
+            return
+        }
+
+        applyPredefinedTask(at: 0)
+    }
+
+    private func applyPredefinedTask(at index: Int) {
+        guard predefinedTasks.indices.contains(index) else { return }
+        let task = predefinedTasks[index]
+        selectedTaskIndex = index
+        activity = task.name
+        selectedEmoji = task.emoji
     }
 }

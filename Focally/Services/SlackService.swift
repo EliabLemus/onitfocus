@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import os.log
 
 class SlackService: ObservableObject {
     static let defaultStatusEmoji = ":hourglass_flowing_sand:"
@@ -15,7 +16,9 @@ class SlackService: ObservableObject {
     @Published var lastStatusText: String?
 
     private let keychainKey = "slack-token"
-    private let apiURL = "https://slack.com/api/users.profile.set"
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.focally.mac", category: "SlackService")
+    private let profileSetURL = URL(string: "https://slack.com/api/users.profile.set")!
+    private let authTestURL = URL(string: "https://slack.com/api/auth.test")!
 
     var token: String? {
         get { KeychainHelper.load(key: keychainKey) }
@@ -37,7 +40,16 @@ class SlackService: ObservableObject {
     }
 
     func setStatus(text: String, expirationTimestamp: Int, taskEmoji: String? = nil, fallbackEmoji: String? = nil) {
-        guard isEnabled, let token = token else { return }
+        let maskedToken = maskedToken(token)
+        logger.info("setStatus called. isEnabled=\(self.isEnabled, privacy: .public), token=\(maskedToken, privacy: .public), text=\(text, privacy: .public), taskEmoji=\(taskEmoji ?? "nil", privacy: .public), fallbackEmoji=\(fallbackEmoji ?? "nil", privacy: .public), expirationTimestamp=\(expirationTimestamp, privacy: .public)")
+        guard isEnabled else {
+            logger.info("Skipping setStatus because Slack integration is disabled")
+            return
+        }
+        guard let token else {
+            logger.error("Skipping setStatus because no Slack token is configured")
+            return
+        }
         let statusEmoji = normalizedStatusEmoji(in: text, taskEmoji: taskEmoji, fallbackEmoji: fallbackEmoji)
 
         let profile: [String: String] = [
@@ -46,101 +58,108 @@ class SlackService: ObservableObject {
             "status_expiration": "\(expirationTimestamp)"
         ]
 
-        guard let jsonData = try? JSONEncoder().encode(profile) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        guard let request = makeSlackRequest(url: profileSetURL, token: token, formFields: [
+            "profile": encodedJSONString(for: profile)
+        ]) else {
+            connectionError = "Failed to prepare Slack status request"
+            isConnected = false
+            return
+        }
 
-        var request = URLRequest(url: URL(string: apiURL)!)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "profile=\(jsonString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? jsonString)".data(using: .utf8)
-
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+        performSlackRequest(request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
                     self?.connectionError = error.localizedDescription
                     self?.isConnected = false
+                    self?.logger.error("Slack setStatus request failed: \(error.localizedDescription, privacy: .public)")
                     return
                 }
 
-                guard let data = data,
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let ok = json["ok"] as? Bool else {
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                self?.logger.info("Slack setStatus HTTP status code: \(statusCode, privacy: .public)")
+
+                guard let json = self?.decodeSlackResponseBody(data) else {
                     self?.connectionError = "Invalid response from Slack"
                     self?.isConnected = false
                     return
                 }
 
-                if ok {
+                let ok = json["ok"] as? Bool ?? false
+                if ok && (200...299).contains(statusCode) {
                     self?.isConnected = true
                     self?.connectionError = nil
                     self?.lastStatusText = text
-                    print("[Focally] Slack status set: \(statusEmoji) \(text)")
+                    self?.logger.info("Slack status set successfully: \(statusEmoji, privacy: .public) \(text, privacy: .public)")
                 } else {
                     let errorMsg = json["error"] as? String ?? "Unknown error"
                     self?.connectionError = errorMsg
                     self?.isConnected = false
-                    print("[Focally] Slack error: \(errorMsg)")
+                    self?.logger.error("Slack setStatus failed. httpStatus=\(statusCode, privacy: .public), error=\(errorMsg, privacy: .public)")
                 }
             }
-        }.resume()
+        }
     }
 
     func clearStatus() {
-        guard isEnabled, let token = token else { return }
+        let maskedToken = maskedToken(token)
+        logger.info("clearStatus called. isEnabled=\(self.isEnabled, privacy: .public), token=\(maskedToken, privacy: .public)")
+        guard isEnabled else {
+            logger.info("Skipping clearStatus because Slack integration is disabled")
+            return
+        }
+        guard let token else {
+            logger.error("Skipping clearStatus because no Slack token is configured")
+            return
+        }
 
         let profile: [String: String] = [
             "status_text": "",
             "status_emoji": ""
         ]
 
-        guard let jsonData = try? JSONEncoder().encode(profile) else { return }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-
-        var request = URLRequest(url: URL(string: apiURL)!)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "profile=\(jsonString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? jsonString)".data(using: .utf8)
-
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("[Focally] Slack clear error: \(error.localizedDescription)")
-                    return
-                }
-
-                guard let data = data,
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let ok = json["ok"] as? Bool else {
-                    return
-                }
-
-                if ok {
-                    self?.lastStatusText = nil
-                    print("[Focally] Slack status cleared")
-                }
-            }
-        }.resume()
-    }
-
-    func testConnection() {
-        guard token != nil else {
-            connectionError = "No token configured"
-            isConnected = false
+        guard let request = makeSlackRequest(url: profileSetURL, token: token, formFields: [
+            "profile": encodedJSONString(for: profile)
+        ]) else {
+            logger.error("Failed to prepare Slack clearStatus request")
             return
         }
 
-        // Test by setting a quick status and clearing it
-        setStatus(
-            text: "Testing Focally",
-            expirationTimestamp: Int(Date().timeIntervalSince1970) + 10,
-            taskEmoji: ":test_tube:"
-        )
+        performSlackRequest(request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.logger.error("Slack clearStatus request failed: \(error.localizedDescription, privacy: .public)")
+                    return
+                }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.clearStatus()
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                self?.logger.info("Slack clearStatus HTTP status code: \(statusCode, privacy: .public)")
+
+                guard let json = self?.decodeSlackResponseBody(data) else {
+                    return
+                }
+
+                let ok = json["ok"] as? Bool ?? false
+                if ok {
+                    self?.lastStatusText = nil
+                    self?.logger.info("Slack status cleared")
+                } else {
+                    let errorMsg = json["error"] as? String ?? "Unknown error"
+                    self?.logger.error("Slack clearStatus failed. httpStatus=\(statusCode, privacy: .public), error=\(errorMsg, privacy: .public)")
+                }
+            }
         }
+    }
+
+    func testConnection() {
+        logger.info("testConnection called. isEnabled=\(self.isEnabled, privacy: .public), token=\(self.maskedToken(self.token), privacy: .public)")
+        guard token != nil else {
+            connectionError = "No token configured"
+            isConnected = false
+            logger.error("Slack testConnection failed because no token is configured")
+            return
+        }
+
+        validateToken()
     }
 
     // MARK: - Init
@@ -151,6 +170,61 @@ class SlackService: ObservableObject {
         if token != nil {
             // Don't auto-test, just mark as potentially connected
             self.isConnected = true
+        }
+    }
+
+    func validateToken() {
+        guard let token else {
+            connectionError = "No token configured"
+            isConnected = false
+            logger.error("validateToken called without a token")
+            return
+        }
+
+        logger.info("validateToken called. token=\(self.maskedToken(token), privacy: .public)")
+
+        guard let request = makeSlackRequest(url: authTestURL, token: token, formFields: [:]) else {
+            connectionError = "Failed to prepare Slack auth.test request"
+            isConnected = false
+            return
+        }
+
+        performSlackRequest(request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.connectionError = error.localizedDescription
+                    self?.isConnected = false
+                    self?.logger.error("Slack auth.test request failed: \(error.localizedDescription, privacy: .public)")
+                    return
+                }
+
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                self?.logger.info("Slack auth.test HTTP status code: \(statusCode, privacy: .public)")
+
+                guard let json = self?.decodeSlackResponseBody(data) else {
+                    self?.connectionError = "Invalid response from Slack"
+                    self?.isConnected = false
+                    return
+                }
+
+                let ok = json["ok"] as? Bool ?? false
+                if ok && (200...299).contains(statusCode) {
+                    if token.hasPrefix("xoxp-") {
+                        self?.isConnected = true
+                        self?.connectionError = nil
+                        self?.logger.info("Slack auth.test succeeded for a user token")
+                    } else {
+                        self?.isConnected = false
+                        self?.connectionError = "Slack status updates require a user token (xoxp-) with users.profile:write"
+                        self?.logger.error("Slack auth.test succeeded but token type is not a user token")
+                    }
+                } else {
+                    let errorMsg = json["error"] as? String ?? "Unknown error"
+                    self?.connectionError = errorMsg
+                    self?.isConnected = false
+                    self?.logger.error("Slack auth.test failed. httpStatus=\(statusCode, privacy: .public), error=\(errorMsg, privacy: .public)")
+                }
+            }
         }
     }
 
@@ -206,5 +280,82 @@ class SlackService: ObservableObject {
         character.unicodeScalars.contains { scalar in
             scalar.properties.isEmojiPresentation || scalar.properties.isEmoji
         }
+    }
+
+    private func makeSlackRequest(url: URL, token: String, formFields: [String: String]) -> URLRequest? {
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.httpBody = percentEncodedBody(from: formFields)
+        return request
+    }
+
+    private func performSlackRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+        logger.info("Slack request URL: \(request.url?.absoluteString ?? "nil", privacy: .public)")
+        logger.info("Slack request headers: \(self.maskedHeaders(for: request), privacy: .public)")
+        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
+            logger.info("Slack request body: \(bodyString, privacy: .public)")
+        }
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let responseBody = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+            self?.logger.info("Slack response status: \(statusCode, privacy: .public)")
+            self?.logger.info("Slack response body: \(responseBody, privacy: .public)")
+            completion(data, response, error)
+        }.resume()
+    }
+
+    private func decodeSlackResponseBody(_ data: Data?) -> [String: Any]? {
+        guard let data,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            logger.error("Failed to decode Slack response body")
+            return nil
+        }
+        return json
+    }
+
+    private func encodedJSONString(for object: [String: String]) -> String {
+        guard let jsonData = try? JSONEncoder().encode(object),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return "{}"
+        }
+        return jsonString
+    }
+
+    private func percentEncodedBody(from formFields: [String: String]) -> Data? {
+        guard !formFields.isEmpty else { return Data() }
+        let body = formFields
+            .map { key, value in
+                "\(percentEncode(key))=\(percentEncode(value))"
+            }
+            .joined(separator: "&")
+        return body.data(using: .utf8)
+    }
+
+    private func percentEncode(_ value: String) -> String {
+        value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&+=?"))) ?? value
+    }
+
+    private func maskedHeaders(for request: URLRequest) -> String {
+        var headers = request.allHTTPHeaderFields ?? [:]
+        if let authorization = headers["Authorization"] {
+            headers["Authorization"] = "Bearer \(maskedToken(String(authorization.dropFirst("Bearer ".count))))"
+        }
+        return headers
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)=\($0.value)" }
+            .joined(separator: ", ")
+    }
+
+    private func maskedToken(_ token: String?) -> String {
+        guard let token, !token.isEmpty else { return "nil" }
+        if token.count <= 8 {
+            return String(repeating: "*", count: token.count)
+        }
+        let prefix = token.prefix(4)
+        let suffix = token.suffix(4)
+        return "\(prefix)…\(suffix)"
     }
 }

@@ -10,6 +10,7 @@
 		0972ACA31DECEB6215662878 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 967C5726395E3635788BAEEE /* Resources */; };
 		39A58C6BC3D6F565DE7134F3 /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844B4C6DBE9625A6C4CAD3B6 /* GoogleCalendarService.swift */; };
 		3DAC256B40D77469E0FD581D /* CalendarEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5160E69275BBAC62D6D8143 /* CalendarEventsView.swift */; };
+		3FFC3DE7EF5D8190CFE92A60 /* PredefinedTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA48D3EB4AAD3C4F2BB0A6 /* PredefinedTask.swift */; };
 		4E030561EE6C59693736B49E /* FocusSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E13FFAD610634D3C20A063 /* FocusSession.swift */; };
 		65C855D162E30756C31A2018 /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F1929A30482E8B887E4AD37 /* CalendarEvent.swift */; };
 		679740AFC847642945563E39 /* bell.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8106D91600D3C2013F5ACD33 /* bell.aiff */; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		0179E6DB0D32C6C38E33CE35 /* SlackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlackService.swift; sourceTree = "<group>"; };
+		0ADA48D3EB4AAD3C4F2BB0A6 /* PredefinedTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredefinedTask.swift; sourceTree = "<group>"; };
 		1032F662E9204A6D804DD2EF /* FocusTimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerService.swift; sourceTree = "<group>"; };
 		379E8BFD59E6CCE9B45FA35F /* Focally.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Focally.entitlements; sourceTree = "<group>"; };
 		442CEDEC7C104DB30E47CE7F /* OnItFocusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnItFocusApp.swift; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 			children = (
 				4F1929A30482E8B887E4AD37 /* CalendarEvent.swift */,
 				B0E13FFAD610634D3C20A063 /* FocusSession.swift */,
+				0ADA48D3EB4AAD3C4F2BB0A6 /* PredefinedTask.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -204,6 +207,7 @@
 				39A58C6BC3D6F565DE7134F3 /* GoogleCalendarService.swift in Sources */,
 				8F78AC672E80865A93223480 /* KeychainHelper.swift in Sources */,
 				71297668B2A2B4A07624D8FC /* OnItFocusApp.swift in Sources */,
+				3FFC3DE7EF5D8190CFE92A60 /* PredefinedTask.swift in Sources */,
 				F38696014F84656D6286B4B8 /* SettingsView.swift in Sources */,
 				84AC2BAA9F2CCA1495A302B5 /* SlackService.swift in Sources */,
 			);
@@ -286,7 +290,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -299,7 +303,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.focally.mac;
@@ -345,7 +349,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -364,7 +368,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
