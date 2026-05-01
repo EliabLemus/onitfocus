@@ -19,6 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var popover: NSPopover?
     private var eventMonitor: Any?
     private var settingsWindow: NSWindow?
+    private var mainWindow: NSWindow?
     let timerService = FocusTimerService()
     let dndService = DNDService()
     let slackService = SlackService()
@@ -40,17 +41,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
-        // Setup popover
+        // Setup popover with new MenuBarDropdownView
         let popover = NSPopover()
-        popover.contentSize = NSSize(width: 300, height: 430)
+        popover.contentSize = NSSize(width: 320, height: 600)
         popover.behavior = .transient
 
-        let contentView = FocusMenuHost(
-            timerService: timerService,
-            dndService: dndService,
-            calendarService: calendarService,
-            historyService: historyService
-        )
+        let contentView = MenuBarDropdownView()
+            .environmentObject(timerService)
+            .environmentObject(dndService)
+            .environmentObject(calendarService)
+            .environmentObject(historyService)
         popover.contentViewController = NSHostingController(rootView: contentView)
         self.popover = popover
 
@@ -97,6 +97,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if calendarService.isEnabled {
             calendarService.fetchTodayEvents()
+        }
+
+        // Cmd+Shift+F to open main window
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if event.modifierFlags.contains([.command, .shift]) && event.characters == "f" {
+                self?.openMainWindow()
+                return nil
+            }
+            return event
         }
     }
 
@@ -197,6 +206,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let window = makeSettingsWindow()
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc func openMainWindow() {
+        if popover?.isShown == true {
+            popover?.performClose(nil)
+        }
+
+        if let mainWindow {
+            mainWindow.makeKeyAndOrderFront(nil)
+            mainWindow.orderFrontRegardless()
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let window = NSWindow(contentViewController: NSHostingController(rootView: MainWindow()))
+        window.title = "Focally"
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.isReleasedWhenClosed = false
+        window.setContentSize(NSSize(width: 1200, height: 800))
+        window.minSize = NSSize(width: 900, height: 600)
+        window.center()
+        mainWindow = window
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
