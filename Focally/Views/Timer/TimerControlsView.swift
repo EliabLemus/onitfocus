@@ -49,14 +49,3 @@ struct TimerControlsView: View {
         .padding(.horizontal, 40)
     }
 }
-
-#Preview {
-    VStack {
-        TimerControlsView(
-            onPause: { print("Pause") },
-            onFinish: { print("Finish") }
-        )
-        .environmentObject(FocusTimerService())
-        .padding()
-    }
-}

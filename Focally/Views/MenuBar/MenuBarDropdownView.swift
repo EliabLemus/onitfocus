@@ -328,9 +328,3 @@ struct MenuBarDropdownView: View {
         return hours > 0 ? "\(hours)h \(mins)m Focus" : "\(mins)m Focus"
     }
 }
-
-#Preview {
-    MenuBarDropdownView()
-        .environmentObject(FocusTimerService())
-        .environmentObject(HistoryService.shared)
-}

@@ -14,6 +14,7 @@
 		13A631D245BE04B7853BF4F1 /* Analytics in Resources */ = {isa = PBXBuildFile; fileRef = E989B997F730EA3BE022253C /* Analytics */; };
 		151E5A8420AFEC29524AF41F /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824FFB84C09F608FF1A0E65B /* TopBarView.swift */; };
 		1546EA3A0E314D00A7465E21 /* SoundPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D891CCE8D1B47F36A376EF /* SoundPlayerService.swift */; };
+		15484DE81EA7074873C79B21 /* TaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5722B76D495A722143C67D73 /* TaskRowView.swift */; };
 		1A3BC7FFCD81ED099070BE22 /* DesignSystem in Resources */ = {isa = PBXBuildFile; fileRef = 1BFD2714D8AA41F25ECEE551 /* DesignSystem */; };
 		2014D50F7122A0AFCBDA1855 /* IntegrationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D39D966FFC20A42278A9DC /* IntegrationsSettingsView.swift */; };
 		22CE09543F47353743C5813D /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1B7C50E674FBFB62FE9DF9 /* SharedComponents.swift */; };
@@ -42,7 +43,6 @@
 		803039DD967F5D993EC45A02 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 69BA6A62FBD191361AA67F13 /* Inter-Medium.ttf */; };
 		809EBE91F71EE7FC5E7AE0C8 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 67D595C270A8FFD564B6ADF4 /* Inter-Bold.ttf */; };
 		84AC2BAA9F2CCA1495A302B5 /* SlackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0179E6DB0D32C6C38E33CE35 /* SlackService.swift */; };
-		852FEB641C068C8AFD126EE5 /* FocusMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E01047F1BAA28E91430337 /* FocusMenuView.swift */; };
 		8D9FA177CAF8AC88645E9C21 /* Timer in Resources */ = {isa = PBXBuildFile; fileRef = 048105A570F946E2833492F3 /* Timer */; };
 		8F78AC672E80865A93223480 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4974D6DCBBEF4EDAD90D1BC8 /* KeychainHelper.swift */; };
 		91403EE941CCFB17EA5AD082 /* TimerPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 191E59EB17B55941B8BE4DFC /* TimerPage.swift */; };
@@ -56,7 +56,6 @@
 		AA16BD229B8EB201F5F47D52 /* FocusTrendChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9300C00888F0B7546C94C7 /* FocusTrendChart.swift */; };
 		AA9A7FA72C7102C2DF501965 /* PredefinedTasksList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A137F191E257CDE7AD2ABAE /* PredefinedTasksList.swift */; };
 		AAB08AFF8D55115118E12B39 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DF9DEEC76304DC26DB445F /* SidebarView.swift */; };
-		AC2AF556BA64BF482606A1B0 /* ActivityInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9721E28A6A0CBFB8506A5F6F /* ActivityInputView.swift */; };
 		ADAA439E664426F93640E1CC /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333B9C2677E37101A21C54C8 /* GeneralSettingsView.swift */; };
 		ADF6E6ACAE531242A66946CB /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = B7294FD9B10CC42662103B9B /* AppIcon.icns */; };
 		B1C0B5E975F1DD15F1EEA2A6 /* AutomationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB16BD2F3E3AA2EE81EAAB3 /* AutomationSettingsView.swift */; };
@@ -72,10 +71,10 @@
 		D838842FB637F4CF25588D4E /* MainWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5B5ECDE2CC6A65C42B3D2A /* MainWindow.swift */; };
 		DD17CDE1096E671F174DE5C0 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AE26497177767F58D61D45 /* SettingsPage.swift */; };
 		E7FAA76F83D4FA15983A6856 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 97C672BD4B94B34B063F44E5 /* Fonts */; };
+		E95208F3D30D1AE78A138D47 /* SmartTemplatesCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810114785EFF92E93469DBC9 /* SmartTemplatesCard.swift */; };
 		EA47EA69F07B97F12E89C9EA /* FocusTimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1032F662E9204A6D804DD2EF /* FocusTimerService.swift */; };
 		EA48D35F158E4DC1C71ED845 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B872379B2018EE66D478415E /* Assets.xcassets */; };
 		F2B8CBD723F1F53867939192 /* FocallyTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126D47EF69130589A232D146 /* FocallyTypography.swift */; };
-		F38696014F84656D6286B4B8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8132A336C230D8B7FD4EC1DE /* SettingsView.swift */; };
 		F94CE01D65F077489B5FCEC0 /* MenuBarDropdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7066639935ACD7D7D50E24 /* MenuBarDropdownView.swift */; };
 		FEB794232080603BE2B0EE0F /* CreateFocusBlockSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D447524B8FAB7156D08A9B4 /* CreateFocusBlockSheet.swift */; };
 		FF1F6F73C5FB3708C3AD140D /* FocusBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696DBC7778A0F797F047B996 /* FocusBlockView.swift */; };
@@ -115,6 +114,7 @@
 		4D5B5ECDE2CC6A65C42B3D2A /* MainWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindow.swift; sourceTree = "<group>"; };
 		4F1929A30482E8B887E4AD37 /* CalendarEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
 		55FBAB09E40CDC3EA5F3DF20 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		5722B76D495A722143C67D73 /* TaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRowView.swift; sourceTree = "<group>"; };
 		63029DDE28C7BA064F3EA0AE /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		633E55854AB377DA4F68B1CC /* FocallyRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocallyRadius.swift; sourceTree = "<group>"; };
 		67D595C270A8FFD564B6ADF4 /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
@@ -126,8 +126,8 @@
 		7329B648E3CF152B279F34FE /* RecentSessionsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentSessionsList.swift; sourceTree = "<group>"; };
 		76965E6EAEB36C5A93B396A0 /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Navigation; path = Focally/Views/Navigation; sourceTree = SOURCE_ROOT; };
 		80AE26497177767F58D61D45 /* SettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPage.swift; sourceTree = "<group>"; };
+		810114785EFF92E93469DBC9 /* SmartTemplatesCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartTemplatesCard.swift; sourceTree = "<group>"; };
 		8106D91600D3C2013F5ACD33 /* bell.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = bell.aiff; sourceTree = "<group>"; };
-		8132A336C230D8B7FD4EC1DE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		824FFB84C09F608FF1A0E65B /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarView.swift; sourceTree = "<group>"; };
 		844B4C6DBE9625A6C4CAD3B6 /* GoogleCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
 		887E284DE9F5C9CF995676B1 /* FocallySpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocallySpacing.swift; sourceTree = "<group>"; };
@@ -135,7 +135,6 @@
 		8C2677CB56C06B2FD04DCAF2 /* DesignSystemTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystemTestView.swift; sourceTree = "<group>"; };
 		8E5322A16B3B60603C5509F9 /* Focally.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Focally.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		967C5726395E3635788BAEEE /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Resources; path = Focally/Resources; sourceTree = SOURCE_ROOT; };
-		9721E28A6A0CBFB8506A5F6F /* ActivityInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityInputView.swift; sourceTree = "<group>"; };
 		97C672BD4B94B34B063F44E5 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = Focally/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		9ACE0919D2BAEFCCC24A8A9C /* FocusAllocationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAllocationCard.swift; sourceTree = "<group>"; };
 		9FCE523D9EFCCD10CFBD8794 /* EstimatedTimeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimatedTimeCard.swift; sourceTree = "<group>"; };
@@ -144,7 +143,6 @@
 		B860787C9D927F44E814A0E0 /* IdleDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleDashboardView.swift; sourceTree = "<group>"; };
 		B872379B2018EE66D478415E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C17386F3788F2D2F1263DBDD /* PomodoroState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroState.swift; sourceTree = "<group>"; };
-		C4E01047F1BAA28E91430337 /* FocusMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusMenuView.swift; sourceTree = "<group>"; };
 		C748C5C5C964CFE0D53D32A8 /* CardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardModifier.swift; sourceTree = "<group>"; };
 		C9102C13F0BCCC126E86559F /* FocallyFocusScoreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocallyFocusScoreCard.swift; sourceTree = "<group>"; };
 		DDFBAC5608BA076F787C1281 /* Schedule */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Schedule; path = Focally/Views/Schedule; sourceTree = SOURCE_ROOT; };
@@ -174,10 +172,7 @@
 		122010126CD7EFB3D8B2BF85 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				9721E28A6A0CBFB8506A5F6F /* ActivityInputView.swift */,
-				C4E01047F1BAA28E91430337 /* FocusMenuView.swift */,
 				4D5B5ECDE2CC6A65C42B3D2A /* MainWindow.swift */,
-				8132A336C230D8B7FD4EC1DE /* SettingsView.swift */,
 				6E1B7C50E674FBFB62FE9DF9 /* SharedComponents.swift */,
 				590A7EFBC009126860A31878 /* Analytics */,
 				4A2B7356CDB6634F3D74235D /* MenuBar */,
@@ -284,6 +279,8 @@
 			isa = PBXGroup;
 			children = (
 				0A137F191E257CDE7AD2ABAE /* PredefinedTasksList.swift */,
+				810114785EFF92E93469DBC9 /* SmartTemplatesCard.swift */,
+				5722B76D495A722143C67D73 /* TaskRowView.swift */,
 				455AC520CE3339E97869E3F3 /* TasksPage.swift */,
 				F90F068B7D2A7CEED482B916 /* TimerSettingsCard.swift */,
 			);
@@ -448,7 +445,6 @@
 			files = (
 				A5C5DDFD64A5AA925679A34B /* AboutSettingsView.swift in Sources */,
 				CAECDE4AC6D75573BAECAF34 /* ActiveFocusView.swift in Sources */,
-				AC2AF556BA64BF482606A1B0 /* ActivityInputView.swift in Sources */,
 				C36B2949A17645A1C9679416 /* AnalyticsPage.swift in Sources */,
 				34338A611D5C7DB3F143BE0C /* AnalyticsService.swift in Sources */,
 				62800918C6A9ABAF71CE9F6C /* AppearanceSettingsView.swift in Sources */,
@@ -469,7 +465,6 @@
 				93BF8041B02840C835DC9371 /* FocusAllocationCard.swift in Sources */,
 				5D4D0DA99FF251508C00D382 /* FocusBlock.swift in Sources */,
 				FF1F6F73C5FB3708C3AD140D /* FocusBlockView.swift in Sources */,
-				852FEB641C068C8AFD126EE5 /* FocusMenuView.swift in Sources */,
 				75AE11EE54E0E7089F054303 /* FocusScoreCard.swift in Sources */,
 				EA47EA69F07B97F12E89C9EA /* FocusTimerService.swift in Sources */,
 				AA16BD229B8EB201F5F47D52 /* FocusTrendChart.swift in Sources */,
@@ -490,12 +485,13 @@
 				CF4E0D7D8E95689E6B3A9010 /* SchedulePage.swift in Sources */,
 				A9B36E8ADD6E0B6C2B437CE6 /* ScheduleService.swift in Sources */,
 				DD17CDE1096E671F174DE5C0 /* SettingsPage.swift in Sources */,
-				F38696014F84656D6286B4B8 /* SettingsView.swift in Sources */,
 				22CE09543F47353743C5813D /* SharedComponents.swift in Sources */,
 				28F4668E8B5055976BA76C10 /* SidebarItemView.swift in Sources */,
 				AAB08AFF8D55115118E12B39 /* SidebarView.swift in Sources */,
 				84AC2BAA9F2CCA1495A302B5 /* SlackService.swift in Sources */,
+				E95208F3D30D1AE78A138D47 /* SmartTemplatesCard.swift in Sources */,
 				1546EA3A0E314D00A7465E21 /* SoundPlayerService.swift in Sources */,
+				15484DE81EA7074873C79B21 /* TaskRowView.swift in Sources */,
 				39A248BCEF89B6D08450BB25 /* TasksPage.swift in Sources */,
 				0CB0FBE091E9FB84F36F2E5F /* TimerControlsView.swift in Sources */,
 				91403EE941CCFB17EA5AD082 /* TimerPage.swift in Sources */,

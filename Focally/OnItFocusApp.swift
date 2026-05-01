@@ -34,7 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "hourglass", accessibilityDescription: "Focally")
+            button.image = NSImage(systemSymbolName: "timer", accessibilityDescription: "Focally")
             button.action = #selector(togglePopover)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
@@ -244,7 +244,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 button.title = newText
             }
         } else {
-            button.image = NSImage(systemSymbolName: "hourglass", accessibilityDescription: "Focally")
+            button.image = NSImage(systemSymbolName: "timer", accessibilityDescription: "Focally")
             button.title = ""
         }
 

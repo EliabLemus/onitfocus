@@ -86,8 +86,3 @@ struct AutomationSettingsView: View {
         }
     }
 }
-
-#Preview {
-    AutomationSettingsView()
-        .frame(width: 500, height: 300)
-}

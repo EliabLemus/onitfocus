@@ -65,8 +65,3 @@ struct AboutSettingsView: View {
         .padding(.vertical, FocallySpacing.xl)
     }
 }
-
-#Preview {
-    AboutSettingsView()
-        .frame(width: 500, height: 350)
-}

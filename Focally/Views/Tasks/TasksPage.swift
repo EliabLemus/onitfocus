@@ -1,23 +1,8 @@
 import SwiftUI
 
 struct TasksPage: View {
-    @State private var focusDuration: String = "25"
-    @State private var shortBreak: String = "5"
-    @State private var longBreak: String = "15"
-    @State private var autoStartBreaks: Bool = true
-
-    @State private var predefinedTasks: [PredefinedTask] = [
-        PredefinedTask(name: "Code Review", emoji: "💻"),
-        PredefinedTask(name: "Documentation", emoji: "📚"),
-        PredefinedTask(name: "Email", emoji: "📧"),
-        PredefinedTask(name: "Exercise", emoji: "💪")
-    ]
-
-    @State private var showingAddSheet = false
-
     var body: some View {
         VStack(spacing: 0) {
-            // TopBar
             TopBarView {
                 Text("Task Configuration")
                     .font(.focallyH2)
@@ -44,14 +29,20 @@ struct TasksPage: View {
 
                 ScrollView {
                     VStack(spacing: FocallySpacing.lg) {
-                        // Timer Settings Card
-                        TimerSettingsCard()
+                        HStack(alignment: .top, spacing: FocallySpacing.lg) {
+                            VStack(spacing: FocallySpacing.lg) {
+                                TimerSettingsCard()
+                                FocusModeCard()
+                            }
+                            .frame(maxWidth: .infinity)
 
-                        // Visual Accent Card
-                        FocusModeCard()
+                            PredefinedTasksList()
+                                .frame(maxWidth: .infinity)
+                        }
 
-                        // Predefined Tasks Card
-                        PredefinedTasksList()
+                        SmartTemplatesCard()
+
+                        TasksFooter()
                     }
                     .padding(.horizontal, FocallySpacing.lg)
                     .padding(.bottom, FocallySpacing.lg)
@@ -64,6 +55,16 @@ struct TasksPage: View {
     }
 }
 
-#Preview {
-    TasksPage()
+private struct TasksFooter: View {
+    var body: some View {
+        HStack {
+            Text("Changes are saved automatically and applied to future focus sessions.")
+                .font(.focallyCaption)
+                .foregroundStyle(Color.focallyOnSurfaceVariant)
+
+            Spacer()
+        }
+        .padding(.horizontal, FocallySpacing.md)
+        .padding(.vertical, FocallySpacing.sm)
+    }
 }

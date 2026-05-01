@@ -3,7 +3,7 @@ import Charts
 
 struct AnalyticsPage: View {
     @State private var selectedRangeIndex: Int = 0
-    @State private var analyticsService = AnalyticsService()
+    @StateObject private var analyticsService = AnalyticsService()
     @State private var showingExportSheet = false
 
     var body: some View {
@@ -137,8 +137,4 @@ private struct AvgSessionDepthCard: View {
         .padding(FocallySpacing.lg)
         .focallyCard()
     }
-}
-
-#Preview {
-    AnalyticsPage()
 }

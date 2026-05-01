@@ -70,9 +70,3 @@ struct FocallyFocusScoreCard: View {
         Color.focallyCardBorder
     }
 }
-
-#Preview {
-    FocallyFocusScoreCard()
-        .padding()
-        .background(Color.focallyBackground)
-}

@@ -1,6 +1,5 @@
 import SwiftUI
 
-@Observable
 class FocallyTheme {
     var colorScheme: ColorScheme = .light
 

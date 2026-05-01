@@ -160,8 +160,3 @@ struct SettingsPage: View {
         }
     }
 }
-
-#Preview {
-    SettingsPage()
-        .frame(width: 800, height: 600)
-}

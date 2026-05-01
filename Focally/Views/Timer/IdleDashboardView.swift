@@ -308,8 +308,3 @@ struct IdleDashboardView: View {
         }
     }
 }
-
-#Preview {
-    IdleDashboardView(onStartSession: { print("Start session") })
-        .environmentObject(FocusTimerService())
-}

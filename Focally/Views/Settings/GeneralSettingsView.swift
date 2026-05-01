@@ -98,8 +98,3 @@ struct GeneralSettingsView: View {
         .padding(.vertical, FocallySpacing.md)
     }
 }
-
-#Preview {
-    GeneralSettingsView()
-        .frame(width: 500, height: 300)
-}

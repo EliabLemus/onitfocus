@@ -166,11 +166,12 @@ struct ActiveFocusView: View {
 
     private var bottomCards: some View {
         HStack(spacing: 12) {
-            // Focus Score Card
-            FocallyFocusScoreCard()
-
-            // Estimated End Card
+            focusScoreCard
+                .frame(maxWidth: .infinity)
             EstimatedTimeCard()
+                .frame(maxWidth: .infinity)
+            EnvironmentCard()
+                .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
@@ -218,10 +219,63 @@ struct ActiveFocusView: View {
     private func startPulseAnimation() {
         // Animation is handled by .repeatForever on badge
     }
+
+    private var focusScoreCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "bolt.fill")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.focallyPrimary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Focus Score")
+                    .font(.focallyCaption)
+                    .foregroundStyle(Color.focallyOnSurfaceVariant)
+                Text("94%")
+                    .font(.focallyH2)
+            }
+
+            Spacer()
+
+            Text("High")
+                .font(.focallyMicro)
+                .foregroundStyle(Color.focallyPrimary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(Color.focallyPrimary.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
+        .padding(20)
+        .background(Color.focallySurfaceContainerLowest)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.focallyCardBorder, lineWidth: 0.5)
+        }
+    }
 }
 
-#Preview {
-    ActiveFocusView()
-        .environmentObject(FocusTimerService())
-        .environmentObject(DNDService())
+struct EnvironmentCard: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "brain.head.profile")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.focallySecondary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Environment")
+                    .font(.focallyBodyBold)
+                    .foregroundStyle(Color.focallyOnSurface)
+
+                Text("Calm")
+                    .font(.focallyH2)
+            }
+        }
+        .padding(16)
+        .background(Color.focallySurfaceContainerLow)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.focallyCardBorder, lineWidth: 0.5)
+        }
+    }
 }

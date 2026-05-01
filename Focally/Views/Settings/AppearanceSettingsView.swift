@@ -83,8 +83,3 @@ struct AppearanceSettingsView: View {
         .buttonStyle(.plain)
     }
 }
-
-#Preview {
-    AppearanceSettingsView()
-        .frame(width: 500, height: 300)
-}

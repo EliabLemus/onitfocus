@@ -93,8 +93,3 @@ struct IntegrationsSettingsView: View {
         )
     }
 }
-
-#Preview {
-    IntegrationsSettingsView()
-        .frame(width: 500, height: 300)
-}

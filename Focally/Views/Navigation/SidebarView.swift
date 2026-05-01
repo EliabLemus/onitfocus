@@ -42,6 +42,35 @@ struct SidebarView: View {
 
             Spacer()
 
+            VStack(alignment: .leading, spacing: FocallySpacing.sm) {
+                Text("Daily Streak")
+                    .font(.focallyCaption)
+                    .foregroundStyle(Color.focallyOnSurfaceVariant)
+
+                HStack {
+                    Text("12 Days")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(Color.focallyOnSurface)
+
+                    Spacer()
+
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.orange)
+                }
+            }
+            .padding(FocallySpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: FocallyRadius.lg)
+                    .fill(Color.focallySurfaceContainerLow)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: FocallyRadius.lg)
+                            .stroke(Color.focallyCardBorder, lineWidth: 0.5)
+                    )
+            )
+            .padding(.horizontal, FocallySpacing.sm)
+            .padding(.bottom, FocallySpacing.sm)
+
             // Profile card
             HStack(spacing: 10) {
                 Circle()
@@ -59,7 +88,7 @@ struct SidebarView: View {
 
                 Spacer()
             }
-            .padding(12)
+            .padding(FocallySpacing.md)
             .background(
                 RoundedRectangle(cornerRadius: FocallyRadius.lg)
                     .fill(Color.focallySurfaceContainerLow)

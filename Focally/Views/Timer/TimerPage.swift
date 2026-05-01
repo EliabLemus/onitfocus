@@ -73,9 +73,3 @@ struct TimerPage: View {
         .padding(.bottom, 16)
     }
 }
-
-#Preview {
-    TimerPage()
-        .environmentObject(FocusTimerService())
-        .environmentObject(DNDService())
-}

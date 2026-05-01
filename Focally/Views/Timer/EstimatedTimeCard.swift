@@ -33,9 +33,3 @@ struct EstimatedTimeCard: View {
         Color.focallyCardBorder
     }
 }
-
-#Preview {
-    EstimatedTimeCard()
-        .padding()
-        .background(Color.focallyBackground)
-}

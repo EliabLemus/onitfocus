@@ -48,7 +48,3 @@ struct DesignSystemTestView: View {
         .padding()
     }
 }
-
-#Preview {
-    DesignSystemTestView()
-}
