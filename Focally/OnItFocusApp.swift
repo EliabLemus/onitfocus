@@ -215,7 +215,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        let window = NSWindow(contentViewController: NSHostingController(rootView: MainWindow()))
+        let hostingView = MainWindow()
+            .environmentObject(timerService)
+            .environmentObject(dndService)
+            .environmentObject(calendarService)
+            .environmentObject(historyService)
+        let window = NSWindow(contentViewController: NSHostingController(rootView: hostingView))
         window.title = "Focally"
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.isReleasedWhenClosed = false
