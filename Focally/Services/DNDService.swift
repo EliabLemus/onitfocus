@@ -4,6 +4,12 @@ import Foundation
 import os.log
 
 class DNDService: ObservableObject {
+    enum DNDMethod: String {
+        case none = "None"
+        case shortcuts = "Shortcuts"
+        case appleScript = "AppleScript"
+    }
+
     private enum AccessibilityPermissionState: String {
         case unknown
         case trusted
@@ -11,9 +17,11 @@ class DNDService: ObservableObject {
     }
 
     private static let accessibilityStateDefaultsKey = "dndAccessibilityPermissionState"
+    private static let preferredDNDMethodDefaultsKey = "preferredDNDMethod"
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "app.focally.mac", category: "DNDService")
 
     @Published var isDNDActive = false
+    @Published var dndMethod: DNDMethod
     private var hasShownSetupAlert = false
     private var hasShownAccessibilityAlertThisLaunch = false
     private var shouldSkipAccessibilityChecksUntilRelaunch = false
@@ -22,35 +30,47 @@ class DNDService: ObservableObject {
     init() {
         let savedState = UserDefaults.standard.string(forKey: Self.accessibilityStateDefaultsKey)
         self.accessibilityPermissionState = AccessibilityPermissionState(rawValue: savedState ?? "") ?? .unknown
+        let savedMethod = UserDefaults.standard.string(forKey: Self.preferredDNDMethodDefaultsKey)
+        self.dndMethod = DNDMethod(rawValue: savedMethod ?? "") ?? .none
     }
 
     func activateDND() {
-        logger.info("activateDND called. isDNDActive=\(self.isDNDActive, privacy: .public), cachedPermissionState=\(self.accessibilityPermissionState.rawValue, privacy: .public), shouldSkipAccessibilityChecksUntilRelaunch=\(self.shouldSkipAccessibilityChecksUntilRelaunch, privacy: .public)")
+        logger.info("activateDND called. isDNDActive=\(self.isDNDActive, privacy: .public), dndMethod=\(self.dndMethod.rawValue, privacy: .public), cachedPermissionState=\(self.accessibilityPermissionState.rawValue, privacy: .public), shouldSkipAccessibilityChecksUntilRelaunch=\(self.shouldSkipAccessibilityChecksUntilRelaunch, privacy: .public)")
         guard !isDNDActive else { return }
+
+        if activateViaShortcuts() {
+            isDNDActive = true
+            updatePreferredMethod(.shortcuts)
+            logger.info("DND activated")
+            return
+        }
+
         guard ensureAccessibilityPermission() else {
-            presentAccessibilityAlert()
+            presentSetupAlert()
             return
         }
 
         if toggleDNDShortcut() {
             isDNDActive = true
+            updatePreferredMethod(.appleScript)
             logger.info("DND activated")
-        } else {
-            presentFocusShortcutAlert()
+            return
         }
+
+        presentSetupAlert()
     }
 
     func deactivateDND() {
-        logger.info("deactivateDND called. isDNDActive=\(self.isDNDActive, privacy: .public), cachedPermissionState=\(self.accessibilityPermissionState.rawValue, privacy: .public), shouldSkipAccessibilityChecksUntilRelaunch=\(self.shouldSkipAccessibilityChecksUntilRelaunch, privacy: .public)")
+        logger.info("deactivateDND called. isDNDActive=\(self.isDNDActive, privacy: .public), dndMethod=\(self.dndMethod.rawValue, privacy: .public), cachedPermissionState=\(self.accessibilityPermissionState.rawValue, privacy: .public), shouldSkipAccessibilityChecksUntilRelaunch=\(self.shouldSkipAccessibilityChecksUntilRelaunch, privacy: .public)")
         guard isDNDActive else { return }
-        guard ensureAccessibilityPermission() else { return }
 
-        if toggleDNDShortcut() {
+        if deactivateUsingPreferredMethod() {
             isDNDActive = false
             logger.info("DND deactivated")
-        } else {
-            logger.error("Failed to deactivate DND")
+            return
         }
+
+        logger.error("Failed to deactivate DND")
     }
 
     private func toggleDNDShortcut() -> Bool {
@@ -79,6 +99,81 @@ class DNDService: ObservableObject {
 
         logger.error("Both Focus toggle shortcuts failed. The configured macOS Focus shortcut may differ from the expected Sonoma mappings.")
         return false
+    }
+
+    private func activateViaShortcuts() -> Bool {
+        logger.info("Attempting Focus activation using shortcuts CLI shortcut Focally-Focus-On")
+        return runShortcut(named: "Focally-Focus-On")
+    }
+
+    private func deactivateViaShortcuts() -> Bool {
+        logger.info("Attempting Focus deactivation using shortcuts CLI shortcut Focally-Focus-Off")
+        return runShortcut(named: "Focally-Focus-Off")
+    }
+
+    private func runShortcut(named name: String) -> Bool {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/shortcuts")
+        task.arguments = ["run", name]
+        let stdoutPipe = Pipe()
+        let stderrPipe = Pipe()
+        task.standardOutput = stdoutPipe
+        task.standardError = stderrPipe
+
+        do {
+            logger.info("Executing shortcuts CLI: /usr/bin/shortcuts run \(name, privacy: .public)")
+            try task.run()
+            task.waitUntilExit()
+            let stdout = String(data: stdoutPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            let stderr = String(data: stderrPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            logger.info("Shortcuts CLI finished. exitCode=\(task.terminationStatus, privacy: .public), stdout=\(stdout, privacy: .public), stderr=\(stderr, privacy: .public)")
+            return task.terminationStatus == 0
+        } catch {
+            logger.error("Shortcuts CLI execution failed: \(error.localizedDescription, privacy: .public)")
+            return false
+        }
+    }
+
+    private func deactivateUsingPreferredMethod() -> Bool {
+        switch dndMethod {
+        case .shortcuts:
+            if deactivateViaShortcuts() {
+                updatePreferredMethod(.shortcuts)
+                return true
+            }
+            return deactivateViaAppleScriptFallback()
+
+        case .appleScript:
+            if deactivateViaAppleScript() {
+                updatePreferredMethod(.appleScript)
+                return true
+            }
+            if deactivateViaShortcuts() {
+                updatePreferredMethod(.shortcuts)
+                return true
+            }
+            return false
+
+        case .none:
+            if deactivateViaShortcuts() {
+                updatePreferredMethod(.shortcuts)
+                return true
+            }
+            return deactivateViaAppleScriptFallback()
+        }
+    }
+
+    private func deactivateViaAppleScriptFallback() -> Bool {
+        guard ensureAccessibilityPermission() else { return false }
+        if deactivateViaAppleScript() {
+            updatePreferredMethod(.appleScript)
+            return true
+        }
+        return false
+    }
+
+    private func deactivateViaAppleScript() -> Bool {
+        toggleDNDShortcut()
     }
 
     private func ensureAccessibilityPermission() -> Bool {
@@ -126,47 +221,38 @@ class DNDService: ObservableObject {
         return false
     }
 
-    private func presentAccessibilityAlert() {
-        guard !hasShownSetupAlert, !hasShownAccessibilityAlertThisLaunch else { return }
-        hasShownSetupAlert = true
-        hasShownAccessibilityAlertThisLaunch = true
-        logger.info("Presenting Accessibility setup alert")
-
-        DispatchQueue.main.async { [weak self] in
-            let alert = NSAlert()
-            alert.messageText = "Accessibility permission is required"
-            alert.informativeText = "Focally needs Accessibility access to trigger your Focus shortcut. Enable it in System Settings > Privacy & Security > Accessibility, then try Do Not Disturb again."
-            alert.addButton(withTitle: "Open Accessibility Settings")
-            alert.addButton(withTitle: "OK")
-
-            let response = alert.runModal()
-            self?.logger.info("Accessibility setup alert dismissed with response \(response.rawValue, privacy: .public)")
-            if response == .alertFirstButtonReturn {
-                self?.openAccessibilitySettings()
-            }
-
-            self?.hasShownSetupAlert = false
-        }
+    private func updatePreferredMethod(_ method: DNDMethod) {
+        dndMethod = method
+        UserDefaults.standard.set(method.rawValue, forKey: Self.preferredDNDMethodDefaultsKey)
+        logger.info("Updated preferred DND method to \(method.rawValue, privacy: .public)")
     }
 
-    private func presentFocusShortcutAlert() {
+    private func presentSetupAlert() {
         guard !hasShownSetupAlert else { return }
         hasShownSetupAlert = true
-        logger.info("Presenting Focus shortcut setup alert")
+        logger.info("Presenting Focus setup alert")
 
         DispatchQueue.main.async { [weak self] in
             let alert = NSAlert()
-            alert.messageText = "Focally could not toggle Do Not Disturb"
-            alert.informativeText = "macOS usually requires a Focus keyboard shortcut for this automation. Set one in System Settings > Keyboard > Keyboard Shortcuts > Focus, then try again."
-            alert.addButton(withTitle: "Open Keyboard Settings")
+            alert.messageText = "Set up Focus shortcuts for Focally"
+            alert.informativeText = """
+            Focally first tries two macOS Shortcuts and falls back to the Accessibility-based keyboard toggle.
+
+            Create these shortcuts in the Shortcuts app:
+            1. “Focally-Focus-On” → add Set Focus, choose Work, then Turn On until turned off.
+            2. “Focally-Focus-Off” → add Set Focus, then Turn Off.
+
+            If you prefer the keyboard-toggle fallback, also enable Accessibility access for Focally in System Settings > Privacy & Security > Accessibility.
+            """
+            alert.addButton(withTitle: "Open Shortcuts")
             alert.addButton(withTitle: "Open Accessibility Settings")
             alert.addButton(withTitle: "OK")
 
             let response = alert.runModal()
-            self?.logger.info("Focus shortcut alert dismissed with response \(response.rawValue, privacy: .public)")
+            self?.logger.info("Focus setup alert dismissed with response \(response.rawValue, privacy: .public)")
             switch response {
             case .alertFirstButtonReturn:
-                self?.openKeyboardSettings()
+                self?.openShortcutsApp()
             case .alertSecondButtonReturn:
                 self?.openAccessibilitySettings()
             default:
@@ -185,11 +271,14 @@ class DNDService: ObservableObject {
         NSWorkspace.shared.open(url)
     }
 
-    private func openKeyboardSettings() {
-        logger.info("Opening Keyboard settings")
-        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.keyboard") else {
+    private func openShortcutsApp() {
+        logger.info("Opening Shortcuts app")
+        if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.shortcuts") {
+            NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil)
             return
         }
-        NSWorkspace.shared.open(url)
+
+        guard let fallbackURL = URL(string: "shortcuts://") else { return }
+        NSWorkspace.shared.open(fallbackURL)
     }
 }

@@ -15,7 +15,7 @@ struct ActivityInputView: View {
     let durations = [25, 45, 60, 90]
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 18) {
             Text("Start Focus Session")
                 .font(.headline)
 
@@ -23,8 +23,7 @@ struct ActivityInputView: View {
                 predefinedTaskPicker
             }
 
-            // Activity name
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("What are you working on?")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -32,8 +31,7 @@ struct ActivityInputView: View {
                     .textFieldStyle(.roundedBorder)
             }
 
-            // Emoji picker
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("Activity")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -57,8 +55,7 @@ struct ActivityInputView: View {
                 }
             }
 
-            // Duration picker
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("Duration")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -80,9 +77,12 @@ struct ActivityInputView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                TextField("Custom (min)", text: $customMinutes)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 120)
+                HStack {
+                    TextField("Custom (min)", text: $customMinutes)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 120)
+                    Spacer()
+                }
                     .onChange(of: customMinutes) { _, newValue in
                         if let minutes = Int(newValue), minutes > 0 {
                             selectedDuration = minutes
@@ -90,7 +90,6 @@ struct ActivityInputView: View {
                     }
             }
 
-            // Actions
             HStack(spacing: 12) {
                 Button("Cancel") {
                     onCancel()
@@ -125,7 +124,7 @@ struct ActivityInputView: View {
     }
 
     private var predefinedTaskPicker: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("Quick task")
                 .font(.caption)
                 .foregroundStyle(.secondary)

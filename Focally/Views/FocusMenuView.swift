@@ -9,9 +9,7 @@ struct FocusMenuView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                if timerService.pomodoroState == .idle {
-                    idleView
-                } else if showActivityInput {
+                if showActivityInput {
                     ActivityInputView { activity, emoji, duration in
                         timerService.startWorkSession(activity: activity, emoji: emoji, durationMinutes: duration)
                         dndService.activateDND()
@@ -19,6 +17,8 @@ struct FocusMenuView: View {
                     } onCancel: {
                         showActivityInput = false
                     }
+                } else if timerService.pomodoroState == .idle {
+                    idleView
                 } else {
                     activeView
                 }
@@ -35,49 +35,79 @@ struct FocusMenuView: View {
                 }
             }
             .frame(width: 350)
-            .padding(.vertical, 20)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 18)
         }
     }
 
     // MARK: - Idle State
 
     private var idleView: some View {
-        VStack(spacing: 16) {
-            Text(timerService.stateIcon)
-                .font(.system(size: 48))
+        VStack(spacing: 18) {
+            VStack(spacing: 10) {
+                Text(timerService.stateIcon)
+                    .font(.system(size: 48))
 
-            Text(timerService.phaseName)
-                .font(.headline)
+                Text(timerService.phaseName)
+                    .font(.headline)
 
-            if !timerService.currentActivity.isEmpty {
-                Text(timerService.currentActivity)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                if !timerService.currentActivity.isEmpty {
+                    Text("\(timerService.currentEmoji) \(timerService.currentActivity)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .padding(.horizontal, 16)
+            .background(stateCardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-            // Quick Start Pomodoro
-            Button(action: {
-                timerService.startWorkSession(
-                    activity: "Focus Session",
-                    emoji: "🍅",
-                    durationMinutes: timerService.workDurationMinutes
+            VStack(spacing: 10) {
+                Button(action: {
+                    timerService.startWorkSession(
+                        activity: "Focus Session",
+                        emoji: "🍅",
+                        durationMinutes: timerService.workDurationMinutes
+                    )
+                    dndService.activateDND()
+                }) {
+                    HStack {
+                        Text("🍅 Quick Start · \(timerService.workDurationMinutes)m")
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Image(systemName: "play.fill")
+                            .font(.caption.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .background(Color.orange.opacity(0.16))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.orange.opacity(0.28), lineWidth: 1)
                 )
-                dndService.activateDND()
-            }) {
-                Label("🍅 Quick Start", systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
 
-            // Custom Focus Session
-            Button(action: {
-                showActivityInput = true
-            }) {
-                Label("Start Focus", systemImage: "pencil")
+                Button(action: {
+                    showActivityInput = true
+                }) {
+                    HStack {
+                        Text("✏️ Custom Session")
+                            .fontWeight(.medium)
+                        Spacer()
+                    }
                     .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .background(Color.primary.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
-            .buttonStyle(.bordered)
         }
     }
 
@@ -85,86 +115,84 @@ struct FocusMenuView: View {
 
     private var activeView: some View {
         VStack(spacing: 16) {
-            // Timer Display
-            VStack(spacing: 8) {
+            VStack(spacing: 12) {
                 Text(timerService.stateIcon)
                     .font(.system(size: 40))
 
                 Text(timerService.remainingTimeString)
                     .font(.system(size: 72, weight: .light, design: .monospaced))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                if timerService.isBreak {
-                    Text(timerService.isLongBreak ? "Long Break" : "Short Break")
+                VStack(spacing: 4) {
+                    Text(timerService.phaseName)
                         .font(.headline)
-                        .foregroundColor(.secondary)
-                } else {
-                    Text("Focus")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                }
 
-                if timerService.isWork {
-                    Text("Round \(timerService.currentRound) / \(timerService.roundsUntilLongBreak)")
+                    Text(roundStatusText)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-            }
 
-            // Progress Bar
-            if timerService.isWork {
+                if !timerService.currentActivity.isEmpty {
+                    Text("\(timerService.currentEmoji) \(timerService.currentActivity)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 2)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .padding(.horizontal, 16)
+            .background(stateCardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+            VStack(spacing: 8) {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.gray.opacity(0.3))
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Color.primary.opacity(0.10))
 
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.green)
-                            .frame(width: geometry.size.width * timerService.progress)
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(progressColor)
+                            .frame(width: max(geometry.size.width * timerService.progress, timerService.progress > 0 ? 10 : 0))
                     }
                 }
-                .frame(height: 6)
-                .padding(.horizontal, 8)
-            }
+                .frame(height: 8)
 
-            // Controls
-            HStack(spacing: 8) {
+                HStack {
+                    Text(timerService.phaseName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(Int(timerService.progress * 100))%")
+                        .font(.caption.monospacedDigit())
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 6)
+
+            HStack(spacing: 10) {
                 if timerService.isPaused {
-                    Button(action: {
+                    controlButton("Resume", systemImage: "play.fill", tint: .green, prominent: true) {
                         timerService.resumeSession()
-                    }) {
-                        Label("Resume", systemImage: "play.fill")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
                 } else {
-                    Button(action: {
+                    controlButton("Pause", systemImage: "pause.fill", tint: .primary, prominent: false) {
                         timerService.pauseSession()
-                    }) {
-                        Label("Pause", systemImage: "pause.fill")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
                 }
 
                 if timerService.isBreak {
-                    Button(action: {
+                    controlButton("Skip", systemImage: "forward.fill", tint: .blue, prominent: false) {
                         timerService.skipToNextPhase()
-                    }) {
-                        Label("Skip", systemImage: "forward.fill")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
                 }
 
-                Button(action: {
+                controlButton("Stop", systemImage: "stop.fill", tint: .red, prominent: false) {
                     timerService.resetToIdle()
                     dndService.deactivateDND()
-                }) {
-                    Label("Stop", systemImage: "stop.fill")
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
-                .tint(.red)
             }
         }
     }
@@ -237,5 +265,60 @@ struct FocusMenuView: View {
         .background(Color.orange.opacity(0.1))
         .cornerRadius(6)
         .padding(.horizontal, 20)
+    }
+}
+
+private extension FocusMenuView {
+    var progressColor: Color {
+        if timerService.pomodoroState == .idle {
+            return .gray
+        }
+        if timerService.isWork {
+            return .green
+        }
+        return timerService.isLongBreak ? .purple : .blue
+    }
+
+    var stateCardBackground: Color {
+        progressColor.opacity(timerService.pomodoroState == .idle ? 0.08 : 0.12)
+    }
+
+    var roundStatusText: String {
+        let visibleRound = timerService.isWork
+            ? min(timerService.currentRound + 1, timerService.roundsUntilLongBreak)
+            : max(timerService.currentRound, 1)
+
+        if timerService.isBreak {
+            return "Round \(visibleRound) · \(timerService.phaseName)"
+        }
+
+        return "Round \(visibleRound) / \(timerService.roundsUntilLongBreak)"
+    }
+
+    @ViewBuilder
+    func controlButton(
+        _ title: String,
+        systemImage: String,
+        tint: Color,
+        prominent: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Group {
+            if prominent {
+                Button(action: action) {
+                    Label(title, systemImage: systemImage)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            } else {
+                Button(action: action) {
+                    Label(title, systemImage: systemImage)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .tint(tint)
+        .controlSize(.large)
     }
 }

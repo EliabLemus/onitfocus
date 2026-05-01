@@ -280,6 +280,7 @@ class FocusTimerService: ObservableObject {
         case .work:
             // Record completed work session
             recordWorkSession()
+            currentRound += 1
 
             // Check if long break is due
             if currentRound >= roundsUntilLongBreak {
