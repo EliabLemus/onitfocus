@@ -20,6 +20,9 @@ struct MainWindow: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.focallyBackground)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .focusNavigateToSettings)) { _ in
+            selectedTab = .settings
+        }
     }
 
     @ViewBuilder

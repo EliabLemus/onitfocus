@@ -7,9 +7,8 @@ struct FocallyApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView()
-                .environmentObject(appDelegate.slackService)
-                .environmentObject(appDelegate.calendarService)
+            // Redirect system Settings to MainWindow (Settings tab handled via openSettings)
+            EmptyView()
         }
     }
 }
@@ -18,7 +17,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
     private var eventMonitor: Any?
-    private var settingsWindow: NSWindow?
     private var mainWindow: NSWindow?
     let timerService = FocusTimerService()
     let dndService = DNDService()
@@ -197,18 +195,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             popover?.performClose(nil)
         }
 
-        // Reuse the same window so it can be reopened after the user closes it.
-        if let settingsWindow {
-            settingsWindow.makeKeyAndOrderFront(nil)
-            settingsWindow.orderFrontRegardless()
-            NSApp.activate(ignoringOtherApps: true)
-            return
+        // Open MainWindow on Settings tab
+        openMainWindow()
+        // Navigate to settings tab after a brief delay (window needs to be visible)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            NotificationCenter.default.post(name: .focusNavigateToSettings, object: nil)
         }
-
-        let window = makeSettingsWindow()
-        window.makeKeyAndOrderFront(nil)
-        window.orderFrontRegardless()
-        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc func openMainWindow() {
@@ -271,24 +263,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         timerUpdate = nil
     }
 
-    private func makeSettingsWindow() -> NSWindow {
-        let settingsView = SettingsView(onSave: { [weak self] in
-            self?.settingsWindow?.close()
-        })
-            .environmentObject(slackService)
-            .environmentObject(calendarService)
-        let hostingController = NSHostingController(rootView: settingsView)
-        let window = NSWindow(contentViewController: hostingController)
-        window.title = "Settings"
-        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-        window.isReleasedWhenClosed = false
-        window.setContentSize(NSSize(width: 420, height: 430))
-        window.minSize = NSSize(width: 420, height: 430)
-        window.center()
-        settingsWindow = window
-        return window
-    }
-
     private var aboutMenuTitle: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
@@ -318,23 +292,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSMenuDelegate {}
 
-struct FocusMenuHost: View {
-    @ObservedObject var timerService: FocusTimerService
-    @ObservedObject var dndService: DNDService
-    @ObservedObject var calendarService: GoogleCalendarService
-    @ObservedObject var historyService: HistoryService
-
-    var body: some View {
-        FocusMenuView()
-            .environmentObject(timerService)
-            .environmentObject(dndService)
-            .environmentObject(calendarService)
-            .environmentObject(historyService)
-    }
-}
-
 // Notification names for Slack integration
 extension Notification.Name {
     static let focusSessionStarted = Notification.Name("focusSessionStarted")
     static let focusSessionEnded = Notification.Name("focusSessionEnded")
+    static let focusNavigateToSettings = Notification.Name("focusNavigateToSettings")
 }
