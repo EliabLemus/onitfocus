@@ -24,17 +24,7 @@ struct SettingsPage: View {
     @State private var selectedSubpage: SettingsSubpage = .general
 
     var body: some View {
-        VStack(spacing: 0) {
-            // TopBar
-            TopBarView {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Settings")
-                        .font(.focallyH2)
-                        .foregroundStyle(Color.focallyOnSurface)
-                }
-            }
-
-            HStack(spacing: 0) {
+        HStack(spacing: 0) {
                 // Sub-navigation sidebar
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(SettingsSubpage.allCases) { subpage in
@@ -140,7 +130,6 @@ struct SettingsPage: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.focallyBackground)
-            }
         }
     }
 
