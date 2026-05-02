@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct TimerSettingsCard: View {
-    @State private var focusDuration: String = "25"
-    @State private var shortBreak: String = "5"
-    @State private var longBreak: String = "15"
-    @State private var autoStartBreaks: Bool = true
+    @EnvironmentObject private var timerService: FocusTimerService
+    @State private var focusDuration = "25"
+    @State private var shortBreak = "5"
+    @State private var longBreak = "15"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,11 +20,29 @@ struct TimerSettingsCard: View {
 
             // Timer duration inputs
             VStack(spacing: 12) {
-                TimerInputRow(label: "Focus Duration", value: $focusDuration, unit: "min", defaultValue: "25")
+                TimerInputRow(
+                    label: "Focus Duration",
+                    value: $focusDuration,
+                    unit: "min",
+                    defaultValue: 25,
+                    onValueChange: timerService.updateWorkDuration(minutes:)
+                )
                 Divider()
-                TimerInputRow(label: "Short Break", value: $shortBreak, unit: "min", defaultValue: "5")
+                TimerInputRow(
+                    label: "Short Break",
+                    value: $shortBreak,
+                    unit: "min",
+                    defaultValue: 5,
+                    onValueChange: timerService.updateShortBreakDuration(minutes:)
+                )
                 Divider()
-                TimerInputRow(label: "Long Break", value: $longBreak, unit: "min", defaultValue: "15")
+                TimerInputRow(
+                    label: "Long Break",
+                    value: $longBreak,
+                    unit: "min",
+                    defaultValue: 15,
+                    onValueChange: timerService.updateLongBreakDuration(minutes:)
+                )
             }
 
             Spacer()
@@ -40,13 +58,27 @@ struct TimerSettingsCard: View {
 
                 Spacer()
 
-                Toggle("", isOn: $autoStartBreaks)
+                Toggle("", isOn: autoStartBreaksBinding)
                     .labelsHidden()
                     .toggleStyle(.switch)
             }
         }
         .padding(16)
         .focallyCard()
+        .onAppear(perform: syncFromService)
+    }
+
+    private var autoStartBreaksBinding: Binding<Bool> {
+        Binding(
+            get: { timerService.isAutoStartEnabled },
+            set: { timerService.updateAutoStartEnabled($0) }
+        )
+    }
+
+    private func syncFromService() {
+        focusDuration = String(timerService.workDurationMinutes)
+        shortBreak = String(timerService.shortBreakDurationMinutes)
+        longBreak = String(timerService.longBreakDurationMinutes)
     }
 }
 
@@ -54,7 +86,8 @@ struct TimerInputRow: View {
     let label: String
     @Binding var value: String
     let unit: String
-    let defaultValue: String
+    let defaultValue: Int
+    let onValueChange: (Int) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -85,7 +118,33 @@ struct TimerInputRow: View {
                         .stroke(Color.focallyOutline.opacity(0.2))
                 )
                 .multilineTextAlignment(.trailing)
+                .onChange(of: value) { _, newValue in
+                    let filtered = newValue.filter(\.isNumber)
+                    if filtered != newValue {
+                        value = filtered
+                        return
+                    }
+
+                    guard let minutes = Int(filtered), (1...600).contains(minutes) else {
+                        return
+                    }
+
+                    onValueChange(minutes)
+                }
+                .onSubmit {
+                    commitValue()
+                }
+                .onDisappear {
+                    commitValue()
+                }
         }
+    }
+
+    private func commitValue() {
+        let parsedValue = Int(value.filter(\.isNumber)) ?? defaultValue
+        let clampedValue = min(max(parsedValue, 1), 600)
+        value = String(clampedValue)
+        onValueChange(clampedValue)
     }
 }
 

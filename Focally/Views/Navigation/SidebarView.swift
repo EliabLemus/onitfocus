@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SidebarView: View {
     @Binding var selectedTab: FocallyTab
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(spacing: 0) {
@@ -101,25 +100,11 @@ struct SidebarView: View {
             .padding(.bottom, FocallySpacing.md)
         }
         .frame(width: 260)
-        .background(
-            ZStack {
-                if colorScheme == .dark {
-                    Color(hex: "121317").opacity(0.8)
-                } else {
-                    Color(hex: "F3F3F4").opacity(0.8)
-                }
-            }
-            .blur(radius: 30)
-            .ignoresSafeArea()
-        )
+        .background(Color.focallySurfaceContainerLow.opacity(0.8).ignoresSafeArea())
         .overlay(
             Rectangle()
                 .frame(width: 0.5)
-                .foregroundStyle(
-                    colorScheme == .dark
-                        ? Color.white.opacity(0.08)
-                        : Color.black.opacity(0.1)
-                ),
+                .foregroundStyle(Color.focallyCardBorder),
             alignment: .trailing
         )
     }

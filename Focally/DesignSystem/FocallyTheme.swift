@@ -1,21 +1,42 @@
 import SwiftUI
 
-class FocallyTheme {
-    var colorScheme: ColorScheme = .light
+enum ThemeChoice: String, CaseIterable, Identifiable {
+    case light
+    case dark
+    case system
 
-    var isDark: Bool {
-        colorScheme == .dark
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .light:
+            return "Light"
+        case .dark:
+            return "Dark"
+        case .system:
+            return "System"
+        }
     }
-}
 
-// Environment key for FocallyTheme
-private struct FocallyThemeKey: EnvironmentKey {
-    static let defaultValue = FocallyTheme()
-}
+    var icon: String {
+        switch self {
+        case .light:
+            return "sun.max.fill"
+        case .dark:
+            return "moon.fill"
+        case .system:
+            return "circle.lefthalf.filled"
+        }
+    }
 
-extension EnvironmentValues {
-    var focallyTheme: FocallyTheme {
-        get { self[FocallyThemeKey.self] }
-        set { self[FocallyThemeKey.self] = newValue }
+    var preferredColorScheme: ColorScheme? {
+        switch self {
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        case .system:
+            return nil
+        }
     }
 }

@@ -7,9 +7,6 @@ struct IdleDashboardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top Bar
-            topBar
-
             // Header
             headerRow
 
@@ -20,7 +17,7 @@ struct IdleDashboardView: View {
                 GridItem(.flexible(), spacing: 12)
             ], spacing: 12) {
                 // Timer Display Card
-                TimerDisplayCard()
+                TimerDisplayCard(onStartSession: onStartSession)
 
                 // Spacer to make it col-span-2
                 Spacer()
@@ -37,32 +34,6 @@ struct IdleDashboardView: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
-    }
-
-    // MARK: - Top Bar
-
-    private var topBar: some View {
-        HStack {
-            Spacer()
-
-            HStack(spacing: 8) {
-                Button(action: {}) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 18))
-                        .foregroundStyle(Color.focallyOnSurfaceVariant)
-                }
-                .buttonStyle(.plain)
-
-                Button(action: {}) {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 18))
-                        .foregroundStyle(Color.focallyOnSurfaceVariant)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 16)
     }
 
     // MARK: - Header
@@ -84,6 +55,7 @@ struct IdleDashboardView: View {
 
     struct TimerDisplayCard: View {
         @EnvironmentObject var timerService: FocusTimerService
+        let onStartSession: () -> Void
 
         var body: some View {
             VStack(spacing: 16) {
@@ -99,12 +71,12 @@ struct IdleDashboardView: View {
                 }
 
                 // Countdown
-                Text(timerService.remainingTimeString)
+                Text(configuredTimeString)
                     .font(.system(size: 120, weight: .bold, design: .monospaced))
                     .foregroundStyle(Color.focallyOnSurface)
                     .monospacedDigit()
                     .contentTransition(.numericText())
-                    .animation(.easeInOut(duration: 0.2), value: timerService.remainingSeconds)
+                    .animation(.easeInOut(duration: 0.2), value: configuredTimeString)
 
                 // Timer Controls
                 HStack(spacing: 8) {
@@ -117,12 +89,10 @@ struct IdleDashboardView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
+                    .disabled(!timerService.hasSession)
+                    .opacity(timerService.hasSession ? 1 : 0.6)
 
-                    Button(action: { timerService.startWorkSession(
-                        activity: timerService.currentActivity.isEmpty ? "Focus Session" : timerService.currentActivity,
-                        emoji: timerService.currentActivity.isEmpty ? "🍅" : timerService.currentEmoji,
-                        durationMinutes: timerService.workDurationMinutes
-                    )}) {
+                    Button(action: onStartSession) {
                         Text("Start")
                             .font(.focallyBodyBold)
                             .frame(maxWidth: .infinity)
@@ -145,6 +115,14 @@ struct IdleDashboardView: View {
 
         private var borderColor: Color {
             Color.focallyCardBorder
+        }
+
+        private var configuredTimeString: String {
+            if timerService.hasSession {
+                return timerService.remainingTimeString
+            }
+
+            return String(format: "%d:00", timerService.workDurationMinutes)
         }
     }
 

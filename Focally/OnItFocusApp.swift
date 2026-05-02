@@ -218,6 +218,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hostingView = MainWindow()
             .environmentObject(timerService)
             .environmentObject(dndService)
+            .environmentObject(slackService)
             .environmentObject(calendarService)
             .environmentObject(historyService)
         let window = NSWindow(contentViewController: NSHostingController(rootView: hostingView))

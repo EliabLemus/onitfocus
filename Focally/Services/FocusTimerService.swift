@@ -5,6 +5,15 @@ import Foundation
 import os.log
 
 class FocusTimerService: ObservableObject {
+    private enum TimerDefaults {
+        static let durationRange = 1...600
+        static let workDuration = 25
+        static let shortBreakDuration = 5
+        static let longBreakDuration = 15
+        static let roundsUntilLongBreak = 3
+        static let autoStartBreaks = true
+    }
+
     // Existing properties for UI compatibility
     @Published var isActive = false
     @Published var isPaused = false
@@ -60,11 +69,11 @@ class FocusTimerService: ObservableObject {
     private func loadSettings() {
         pomodoroState = PomodoroState(rawValue: defaults.string(forKey: "pomodoroState") ?? "idle") ?? .idle
         currentRound = defaults.integer(forKey: "currentRound")
-        roundsUntilLongBreak = defaults.integer(forKey: "roundsUntilLongBreak")
-        isAutoStartEnabled = defaults.bool(forKey: "isAutoStartEnabled")
-        workDurationMinutes = defaults.integer(forKey: "workDurationMinutes")
-        shortBreakDurationMinutes = defaults.integer(forKey: "shortBreakDurationMinutes")
-        longBreakDurationMinutes = defaults.integer(forKey: "longBreakDurationMinutes")
+        roundsUntilLongBreak = storedInteger(forKey: "roundsUntilLongBreak", defaultValue: TimerDefaults.roundsUntilLongBreak)
+        isAutoStartEnabled = storedBool(forKey: "isAutoStartEnabled", defaultValue: TimerDefaults.autoStartBreaks)
+        workDurationMinutes = storedDuration(forKey: "workDurationMinutes", defaultValue: TimerDefaults.workDuration)
+        shortBreakDurationMinutes = storedDuration(forKey: "shortBreakDurationMinutes", defaultValue: TimerDefaults.shortBreakDuration)
+        longBreakDurationMinutes = storedDuration(forKey: "longBreakDurationMinutes", defaultValue: TimerDefaults.longBreakDuration)
     }
 
     private func saveSettings() {
@@ -82,7 +91,7 @@ class FocusTimerService: ObservableObject {
     private func loadLastSession() {
         let lastActivity = defaults.string(forKey: "lastActivity") ?? ""
         let lastEmoji = defaults.string(forKey: "lastEmoji") ?? "📝"
-        let lastDuration = defaults.integer(forKey: "lastDuration") > 0 ? defaults.integer(forKey: "lastDuration") : 25
+        let lastDuration = storedDuration(forKey: "lastDuration", defaultValue: workDurationMinutes)
 
         currentActivity = lastActivity
         currentEmoji = lastEmoji
@@ -93,6 +102,27 @@ class FocusTimerService: ObservableObject {
             workDurationMinutes = lastDuration
             saveSettings()
         }
+    }
+
+    func updateWorkDuration(minutes: Int) {
+        workDurationMinutes = clampDuration(minutes)
+        durationMinutes = workDurationMinutes
+        saveSettings()
+    }
+
+    func updateShortBreakDuration(minutes: Int) {
+        shortBreakDurationMinutes = clampDuration(minutes)
+        saveSettings()
+    }
+
+    func updateLongBreakDuration(minutes: Int) {
+        longBreakDurationMinutes = clampDuration(minutes)
+        saveSettings()
+    }
+
+    func updateAutoStartEnabled(_ isEnabled: Bool) {
+        isAutoStartEnabled = isEnabled
+        saveSettings()
     }
 
     private func saveLastUsed(activity: String, emoji: String, duration: Int) {
@@ -371,5 +401,29 @@ class FocusTimerService: ObservableObject {
 
     var isAutoStartingNextPhase: Bool {
         isAutoStartEnabled && pomodoroState != .idle && pomodoroState != .completed
+    }
+
+    private func storedInteger(forKey key: String, defaultValue: Int) -> Int {
+        guard defaults.object(forKey: key) != nil else {
+            return defaultValue
+        }
+
+        return defaults.integer(forKey: key)
+    }
+
+    private func storedBool(forKey key: String, defaultValue: Bool) -> Bool {
+        guard defaults.object(forKey: key) != nil else {
+            return defaultValue
+        }
+
+        return defaults.bool(forKey: key)
+    }
+
+    private func storedDuration(forKey key: String, defaultValue: Int) -> Int {
+        clampDuration(storedInteger(forKey: key, defaultValue: defaultValue))
+    }
+
+    private func clampDuration(_ minutes: Int) -> Int {
+        min(max(minutes, TimerDefaults.durationRange.lowerBound), TimerDefaults.durationRange.upperBound)
     }
 }

@@ -56,7 +56,7 @@ struct AboutSettingsView: View {
                     .font(.focallyCaption)
                     .foregroundStyle(Color.focallyOutline)
 
-                Text("© 2025 Eliab Lemus")
+                Text("© 2025-2026 Eliab Lemus")
                     .font(.focallyCaption)
                     .foregroundStyle(Color.focallyOutline)
             }
